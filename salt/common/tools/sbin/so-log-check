@@ -170,6 +170,7 @@ if [[ $EXCLUDE_KNOWN_ERRORS == 'Y' ]]; then
     EXCLUDED_ERRORS="$EXCLUDED_ERRORS|cannot join on an empty table" # InfluxDB flux query, import nodes
     EXCLUDED_ERRORS="$EXCLUDED_ERRORS|exhausting result iterator"   # InfluxDB flux query mismatched table results (temporary data issue)
     EXCLUDED_ERRORS="$EXCLUDED_ERRORS|failed to finish run"         # InfluxDB rare error, self-recoverable
+    EXCLUDED_ERRORS="$EXCLUDED_ERRORS|Unable to gather disk name"   # InfluxDB known error, can't read disks because the container doesn't have them mounted
     EXCLUDED_ERRORS="$EXCLUDED_ERRORS|iteration"
     EXCLUDED_ERRORS="$EXCLUDED_ERRORS|communication packets"
     EXCLUDED_ERRORS="$EXCLUDED_ERRORS|use of closed"
@@ -241,6 +242,7 @@ exclude_log "mysqld.log"   # MySQL is removed as of 2.4.70, logs may still be on
 exclude_log "soctopus.log" # Soctopus is removed as of 2.4.70, logs may still be on disk
 exclude_log "agentstatus.log" # ignore this log since it tracks agents in error state
 exclude_log "detections_runtime-status_yara.log" # temporarily ignore this log until Detections is more stable
+exclude_log "/nsm/kafka/data/" # ignore Kafka data directory from log check.
 
 for log_file in $(cat /tmp/log_check_files); do
     status "Checking log file $log_file"
