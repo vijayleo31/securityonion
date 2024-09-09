@@ -1,5 +1,6 @@
 elasticsearch:
   enabled: false
+  version: 8.14.3
   index_clean: true
   config:
     action:
@@ -9054,6 +9055,7 @@ elasticsearch:
         - logs-system.application@custom
         - so-fleet_globals-1
         - so-fleet_agent_id_verification-1
+        - so-system-mappings
         data_stream:
           allow_custom_routing: false
           hidden: false
@@ -9149,6 +9151,7 @@ elasticsearch:
         - logs-system.security@custom
         - so-fleet_globals-1
         - so-fleet_agent_id_verification-1
+        - so-system-mappings
         data_stream:
           allow_custom_routing: false
           hidden: false
@@ -9244,6 +9247,7 @@ elasticsearch:
         - logs-system.system@custom
         - so-fleet_globals-1
         - so-fleet_agent_id_verification-1
+        - so-system-mappings
         data_stream:
           allow_custom_routing: false
           hidden: false
