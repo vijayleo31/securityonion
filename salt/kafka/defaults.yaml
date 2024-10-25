@@ -8,9 +8,8 @@ kafka:
     password:
     trustpass:
     broker:
-      advertised_x_listeners:
       auto_x_create_x_topics_x_enable: true
-      controller_x_quorum_x_voters:
+      controller_x_quorum_x_request_x_timeout_x_ms: 3000
       default_x_replication_x_factor: 1
       inter_x_broker_x_listener_x_name: BROKER
       listeners: BROKER://0.0.0.0:9092
@@ -47,7 +46,6 @@ kafka:
       ssl_x_keystore_x_password:
     controller:
       controller_x_listener_x_names: CONTROLLER
-      controller_x_quorum_x_voters:
       listeners: CONTROLLER://0.0.0.0:9093
       listener_x_security_x_protocol_x_map: CONTROLLER:SSL
       log_x_dirs: /nsm/kafka/data
