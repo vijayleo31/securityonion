@@ -23,7 +23,7 @@
 {% endif %}
 
 {# Only add Kafka firewall items when Kafka enabled #}
-{# {% if GLOBALS.pipeline == 'KAFKA' %} #}
+{% if GLOBALS.pipeline == 'KAFKA' %}
 {%   set role = GLOBALS.role.split('-')[1] %}
 {%   if role in ['manager', 'managersearch', 'standalone'] %}
 {%     do FIREWALL_DEFAULT.firewall.role[role].chain["DOCKER-USER"].hostgroups[role].portgroups.append('kafka_controller') %}
