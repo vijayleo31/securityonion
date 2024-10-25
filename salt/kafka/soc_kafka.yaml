@@ -34,20 +34,10 @@ kafka:
       sensitive: True
       helpLink: kafka.html
     broker:
-      advertised_x_listeners:
-        description: Specify the list of listeners (hostname and port) that Kafka brokers provide to clients for communication.
-        title: advertised.listeners
-        helpLink: kafka.html
       auto_x_create_x_topics_x_enable:
         description: Enable the auto creation of topics.
         title: auto.create.topics.enable
         forcedType: bool
-        helpLink: kafka.html
-      controller_x_quorum_x_voters:
-        description: Kafka Kraft controller quorum voters.
-        title: controller.quorum.voters
-        advanced: True
-        readonly: True
         helpLink: kafka.html
       controller_x_quorum_x_requests_x_timeout_x_ms:
         description: Specify the amount of time broker will wait for a response from the controller.
@@ -204,10 +194,6 @@ kafka:
         sensitive: True
         helpLink: kafka.html
     controller:
-      controller_x_listener_x_names:
-        description: Set listeners used by the controller in a comma-seperated list.
-        title: controller.listener.names
-        helpLink: kafka.html
       listeners:
         description: Set of URIs that is listened on and the listener names in a comma-seperated list.
         helpLink: kafka.html
