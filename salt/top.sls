@@ -12,6 +12,7 @@ base:
   '*':
     - cron.running
     - repo.client
+    - versionlock
     - ntp
     - schedule
     - logrotate
@@ -281,6 +282,7 @@ base:
     - sensoroni
     - telegraf
     - elasticfleet.install_agent_grid
+    - stig
 
   'J@desktop:gui:enabled:^[Tt][Rr][Uu][Ee]$ and ( G@saltversion:{{saltversion}} and G@os:OEL )':
     - match: compound

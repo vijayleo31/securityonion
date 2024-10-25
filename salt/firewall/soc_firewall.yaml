@@ -32,6 +32,7 @@ firewall:
     elasticsearch_rest: *hostgroupsettingsadv
     endgame: *hostgroupsettingsadv
     eval: *hostgroupsettings
+    external_suricata: *hostgroupsettings
     fleet: *hostgroupsettings
     heavynode: *hostgroupsettings
     idh: *hostgroupsettings
@@ -117,10 +118,16 @@ firewall:
     endgame:
       tcp: *tcpsettings
       udp: *udpsettings
+    external_suricata:
+      tcp: *tcpsettings
+      udp: *udpsettings
     influxdb:
       tcp: *tcpsettings
       udp: *udpsettings
-    kafka:
+    kafka_controller:
+      tcp: *tcpsettings
+      udp: *udpsettings
+    kafka_data:
       tcp: *tcpsettings
       udp: *udpsettings
     kibana:
@@ -211,6 +218,8 @@ firewall:
             elasticsearch_rest:
               portgroups: *portgroupsdocker
             elastic_agent_endpoint:
+              portgroups: *portgroupsdocker
+            external_suricata: 
               portgroups: *portgroupsdocker
             strelka_frontend:
               portgroups: *portgroupsdocker
@@ -367,6 +376,8 @@ firewall:
               portgroups: *portgroupsdocker
             endgame:
               portgroups: *portgroupsdocker
+            external_suricata: 
+              portgroups: *portgroupsdocker
             analyst:
               portgroups: *portgroupsdocker
             desktop:
@@ -460,6 +471,8 @@ firewall:
               portgroups: *portgroupsdocker
             analyst:
               portgroups: *portgroupsdocker
+            external_suricata: 
+              portgroups: *portgroupsdocker
             desktop:
               portgroups: *portgroupsdocker
             customhostgroup0:
@@ -550,6 +563,8 @@ firewall:
             elastic_agent_endpoint:
               portgroups: *portgroupsdocker
             endgame:
+              portgroups: *portgroupsdocker
+            external_suricata: 
               portgroups: *portgroupsdocker
             strelka_frontend:
               portgroups: *portgroupsdocker
@@ -824,6 +839,8 @@ firewall:
             elastic_agent_endpoint:
               portgroups: *portgroupsdocker
             analyst:
+              portgroups: *portgroupsdocker
+            external_suricata: 
               portgroups: *portgroupsdocker
             desktop:
               portgroups: *portgroupsdocker

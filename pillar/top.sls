@@ -16,6 +16,8 @@ base:
     - sensoroni.adv_sensoroni
     - telegraf.soc_telegraf
     - telegraf.adv_telegraf
+    - versionlock.soc_versionlock
+    - versionlock.adv_versionlock
 
   '* and not *_desktop':
     - firewall.soc_firewall
@@ -315,3 +317,5 @@ base:
   '*_desktop':
     - minions.{{ grains.id }}
     - minions.adv_{{ grains.id }}
+    - stig.soc_stig
+    - soc.license

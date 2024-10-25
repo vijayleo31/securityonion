@@ -1,5 +1,6 @@
 elasticsearch:
   enabled: false
+  version: 8.14.3
   index_clean: true
   config:
     action:
@@ -2348,6 +2349,52 @@ elasticsearch:
               set_priority:
                 priority: 0
             min_age: 60d
+          delete:
+            actions:
+              delete: {}
+            min_age: 365d
+          hot:
+            actions:
+              rollover:
+                max_age: 30d
+                max_primary_shard_size: 50gb
+              set_priority:
+                priority: 100
+            min_age: 0ms
+          warm:
+            actions:
+              set_priority:
+                priority: 50
+            min_age: 30d
+    so-logs-barracuda_cloudgen_firewall_x_log:
+      index_sorting: False
+      index_template:
+        ignore_missing_component_templates:
+          - logs-barracuda_cloudgen_firewall.log@custom
+        index_patterns:
+          - "logs-barracuda_cloudgen_firewall.log-*"
+        template:
+          settings:
+            index:
+              lifecycle:
+                name: so-logs-barracuda_cloudgen_firewall.log-logs
+              number_of_replicas: 0
+        composed_of:
+          - "logs-barracuda_cloudgen_firewall.log@package"
+          - "logs-barracuda_cloudgen_firewall.log@custom"
+          - "so-fleet_globals-1"
+          - "so-fleet_agent_id_verification-1"
+        priority: 501
+        data_stream:
+          hidden: false
+          allow_custom_routing: false
+      policy:
+        phases:
+          cold:
+            actions:
+              set_priority:
+                priority: 0
+            min_age: 30d
           delete:
             actions:
               delete: {}
@@ -6555,6 +6602,52 @@ elasticsearch:
               set_priority:
                 priority: 50
             min_age: 30d
+    so-logs-imperva_cloud_waf_x_event:
+      index_sorting: False
+      index_template:
+        ignore_missing_component_templates:
+          - logs-imperva_cloud_waf.event@custom
+        index_patterns:
+          - "logs-imperva_cloud_waf.event-*"
+        template:
+          settings:
+            index:
+              lifecycle:
+                name: so-logs-imperva_cloud_waf.event-logs
+              number_of_replicas: 0
+        composed_of:
+          - "logs-imperva_cloud_waf.event@package"
+          - "logs-imperva_cloud_waf.event@custom"
+          - "so-fleet_globals-1"
+          - "so-fleet_agent_id_verification-1"
+        priority: 501
+        data_stream:
+          hidden: false
+          allow_custom_routing: false
+      policy:
+        phases:
+          cold:
+            actions:
+              set_priority:
+                priority: 0
+            min_age: 30d
+          delete:
+            actions:
+              delete: {}
+            min_age: 365d
+          hot:
+            actions:
+              rollover:
+                max_age: 30d
+                max_primary_shard_size: 50gb
+              set_priority:
+                priority: 100
+            min_age: 0ms
+          warm:
+            actions:
+              set_priority:
+                priority: 50
+            min_age: 30d
     so-logs-juniper_srx_x_log:
       index_sorting: false
       index_template:
@@ -9054,6 +9147,7 @@ elasticsearch:
         - logs-system.application@custom
         - so-fleet_globals-1
         - so-fleet_agent_id_verification-1
+        - so-system-mappings
         data_stream:
           allow_custom_routing: false
           hidden: false
@@ -9149,6 +9243,7 @@ elasticsearch:
         - logs-system.security@custom
         - so-fleet_globals-1
         - so-fleet_agent_id_verification-1
+        - so-system-mappings
         data_stream:
           allow_custom_routing: false
           hidden: false
@@ -9244,6 +9339,7 @@ elasticsearch:
         - logs-system.system@custom
         - so-fleet_globals-1
         - so-fleet_agent_id_verification-1
+        - so-system-mappings
         data_stream:
           allow_custom_routing: false
           hidden: false
@@ -9265,6 +9361,190 @@ elasticsearch:
               set_priority:
                 priority: 0
             min_age: 60d
+          delete:
+            actions:
+              delete: {}
+            min_age: 365d
+          hot:
+            actions:
+              rollover:
+                max_age: 30d
+                max_primary_shard_size: 50gb
+              set_priority:
+                priority: 100
+            min_age: 0ms
+          warm:
+            actions:
+              set_priority:
+                priority: 50
+            min_age: 30d
+    so-logs-tenable_io_x_asset:
+      index_sorting: False
+      index_template:
+        index_patterns:
+          - "logs-tenable_io.asset-*"
+        template:
+          settings:
+            index:
+              lifecycle:
+                name: so-logs-tenable_io.asset-logs
+              number_of_replicas: 0
+        composed_of:
+          - "logs-tenable_io.asset@package"
+          - "logs-tenable_io.asset@custom"
+          - "so-fleet_globals-1"
+          - "so-fleet_agent_id_verification-1"
+        priority: 501
+        data_stream:
+          hidden: false
+          allow_custom_routing: false
+        ignore_missing_component_templates:
+        - logs-tenable_io.asset@custom
+      policy:
+        phases:
+          cold:
+            actions:
+              set_priority:
+                priority: 0
+            min_age: 30d
+          delete:
+            actions:
+              delete: {}
+            min_age: 365d
+          hot:
+            actions:
+              rollover:
+                max_age: 30d
+                max_primary_shard_size: 50gb
+              set_priority:
+                priority: 100
+            min_age: 0ms
+          warm:
+            actions:
+              set_priority:
+                priority: 50
+            min_age: 30d
+    so-logs-tenable_io_x_plugin:
+      index_sorting: False
+      index_template:
+        index_patterns:
+          - "logs-tenable_io.plugin-*"
+        template:
+          settings:
+            index:
+              lifecycle:
+                name: so-logs-tenable_io.plugin-logs
+              number_of_replicas: 0
+        composed_of:
+          - "logs-tenable_io.plugin@package"
+          - "logs-tenable_io.plugin@custom"
+          - "so-fleet_globals-1"
+          - "so-fleet_agent_id_verification-1"
+        priority: 501
+        data_stream:
+          hidden: false
+          allow_custom_routing: false
+        ignore_missing_component_templates:
+        - logs-tenable_io.plugin@custom
+      policy:
+        phases:
+          cold:
+            actions:
+              set_priority:
+                priority: 0
+            min_age: 30d
+          delete:
+            actions:
+              delete: {}
+            min_age: 365d
+          hot:
+            actions:
+              rollover:
+                max_age: 30d
+                max_primary_shard_size: 50gb
+              set_priority:
+                priority: 100
+            min_age: 0ms
+          warm:
+            actions:
+              set_priority:
+                priority: 50
+            min_age: 30d
+    so-logs-tenable_io_x_scan:
+      index_sorting: False
+      index_template:
+        index_patterns:
+          - "logs-tenable_io.scan-*"
+        template:
+          settings:
+            index:
+              lifecycle:
+                name: so-logs-tenable_io.scan-logs
+              number_of_replicas: 0
+        composed_of:
+          - "logs-tenable_io.scan@package"
+          - "logs-tenable_io.scan@custom"
+          - "so-fleet_globals-1"
+          - "so-fleet_agent_id_verification-1"
+        priority: 501
+        data_stream:
+          hidden: false
+          allow_custom_routing: false
+        ignore_missing_component_templates:
+        - logs-tenable_io.scan@custom
+      policy:
+        phases:
+          cold:
+            actions:
+              set_priority:
+                priority: 0
+            min_age: 30d
+          delete:
+            actions:
+              delete: {}
+            min_age: 365d
+          hot:
+            actions:
+              rollover:
+                max_age: 30d
+                max_primary_shard_size: 50gb
+              set_priority:
+                priority: 100
+            min_age: 0ms
+          warm:
+            actions:
+              set_priority:
+                priority: 50
+            min_age: 30d
+    so-logs-tenable_io_x_vulnerability:
+      index_sorting: False
+      index_template:
+        index_patterns:
+          - "logs-tenable_io.vulnerability-*"
+        template:
+          settings:
+            index:
+              lifecycle:
+                name: so-logs-tenable_io.vulnerability-logs
+              number_of_replicas: 0
+        composed_of:
+          - "logs-tenable_io.vulnerability@package"
+          - "logs-tenable_io.vulnerability@custom"
+          - "so-fleet_globals-1"
+          - "so-fleet_agent_id_verification-1"
+        priority: 501
+        data_stream:
+          hidden: false
+          allow_custom_routing: false
+        ignore_missing_component_templates:
+        - logs-tenable_io.vulnerability@custom
+      policy:
+        phases:
+          cold:
+            actions:
+              set_priority:
+                priority: 0
+            min_age: 30d
           delete:
             actions:
               delete: {}
@@ -9994,6 +10274,182 @@ elasticsearch:
               lifecycle:
                 name: so-logs-ti_threatq.threat-logs
               number_of_replicas: 0
+      policy:
+        phases:
+          cold:
+            actions:
+              set_priority:
+                priority: 0
+            min_age: 60d
+          delete:
+            actions:
+              delete: {}
+            min_age: 365d
+          hot:
+            actions:
+              rollover:
+                max_age: 30d
+                max_primary_shard_size: 50gb
+              set_priority:
+                priority: 100
+            min_age: 0ms
+          warm:
+            actions:
+              set_priority:
+                priority: 50
+            min_age: 30d
+    so-logs-trend_micro_vision_one_x_alert:
+      index_sorting: False
+      index_template:
+        index_patterns:
+          - "logs-trend_micro_vision_one.alert-*"
+        template:
+          settings:
+            index:
+              number_of_replicas: 0
+        composed_of:
+          - "logs-trend_micro_vision_one.alert@package"
+          - "logs-trend_micro_vision_one.alert@custom"
+          - "so-fleet_globals-1"
+          - "so-fleet_agent_id_verification-1"
+        ignore_missing_component_templates:
+        - "logs-trend_micro_vision_one.alert@custom"
+        priority: 501
+        data_stream:
+          hidden: false
+          allow_custom_routing: false
+      policy:
+        phases:
+          cold:
+            actions:
+              set_priority:
+                priority: 0
+            min_age: 60d
+          delete:
+            actions:
+              delete: {}
+            min_age: 365d
+          hot:
+            actions:
+              rollover:
+                max_age: 30d
+                max_primary_shard_size: 50gb
+              set_priority:
+                priority: 100
+            min_age: 0ms
+          warm:
+            actions:
+              set_priority:
+                priority: 50
+            min_age: 30d
+    so-logs-trend_micro_vision_one_x_audit:
+      index_sorting: False
+      index_template:
+        index_patterns:
+          - "logs-trend_micro_vision_one.audit-*"
+        template:
+          settings:
+            index:
+              number_of_replicas: 0
+        ignore_missing_component_templates:
+        - "logs-trend_micro_vision_one.audit@custom"
+        composed_of:
+          - "logs-trend_micro_vision_one.audit@package"
+          - "logs-trend_micro_vision_one.audit@custom"
+          - "so-fleet_globals-1"
+          - "so-fleet_agent_id_verification-1"
+        priority: 501
+        data_stream:
+          hidden: false
+          allow_custom_routing: false
+      policy:
+        phases:
+          cold:
+            actions:
+              set_priority:
+                priority: 0
+            min_age: 60d
+          delete:
+            actions:
+              delete: {}
+            min_age: 365d
+          hot:
+            actions:
+              rollover:
+                max_age: 30d
+                max_primary_shard_size: 50gb
+              set_priority:
+                priority: 100
+            min_age: 0ms
+          warm:
+            actions:
+              set_priority:
+                priority: 50
+            min_age: 30d
+    so-logs-trend_micro_vision_one_x_detection:
+      index_sorting: False
+      index_template:
+        index_patterns:
+          - "logs-trend_micro_vision_one.detection-*"
+        template:
+          settings:
+            index:
+              number_of_replicas: 0
+        ignore_missing_component_templates:
+        - "logs-trend_micro_vision_one.detection@custom"
+        composed_of:
+          - "logs-trend_micro_vision_one.detection@package"
+          - "logs-trend_micro_vision_one.detection@custom"
+          - "so-fleet_globals-1"
+          - "so-fleet_agent_id_verification-1"
+        priority: 501
+        data_stream:
+          hidden: false
+          allow_custom_routing: false
+      policy:
+        phases:
+          cold:
+            actions:
+              set_priority:
+                priority: 0
+            min_age: 60d
+          delete:
+            actions:
+              delete: {}
+            min_age: 365d
+          hot:
+            actions:
+              rollover:
+                max_age: 30d
+                max_primary_shard_size: 50gb
+              set_priority:
+                priority: 100
+            min_age: 0ms
+          warm:
+            actions:
+              set_priority:
+                priority: 50
+            min_age: 30d
+    so-logs-trendmicro_x_deep_security:
+      index_sorting: False
+      index_template:
+        index_patterns:
+          - "logs-trendmicro.deep_security-*"
+        template:
+          settings:
+            index:
+              number_of_replicas: 0
+        ignore_missing_component_templates:
+        - "logs-trendmicro.deep_security@custom"
+        composed_of:
+          - "logs-trendmicro.deep_security@package"
+          - "logs-trendmicro.deep_security@custom"
+          - "so-fleet_globals-1"
+          - "so-fleet_agent_id_verification-1"
+        priority: 501
+        data_stream:
+          hidden: false
+          allow_custom_routing: false
       policy:
         phases:
           cold:

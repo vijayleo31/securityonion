@@ -1312,6 +1312,10 @@ soc:
         kratos:
           hostUrl:
         elastalertengine:
+          aiRepoUrl: https://github.com/Security-Onion-Solutions/securityonion-resources
+          aiRepoBranch: generated-summaries-published
+          aiRepoPath: /opt/sensoroni/ai_summary_repos
+          showAiSummaries: true
           autoUpdateEnabled: true
           autoEnabledSigmaRules:
             default:
@@ -1391,6 +1395,10 @@ soc:
           userFiles:
             - rbac/users_roles
         strelkaengine:
+          aiRepoUrl: https://github.com/Security-Onion-Solutions/securityonion-resources
+          aiRepoBranch: generated-summaries-published
+          aiRepoPath: /opt/sensoroni/ai_summary_repos
+          showAiSummaries: true
           autoEnabledYaraRules:
             - securityonion-yara
           autoUpdateEnabled: true
@@ -1412,6 +1420,10 @@ soc:
           stateFilePath: /opt/sensoroni/fingerprints/strelkaengine.state
           integrityCheckFrequencySeconds: 1200
         suricataengine:
+          aiRepoUrl: https://github.com/Security-Onion-Solutions/securityonion-resources
+          aiRepoBranch: generated-summaries-published
+          aiRepoPath: /opt/sensoroni/ai_summary_repos
+          showAiSummaries: true
           autoUpdateEnabled: true
           communityRulesImportFrequencySeconds: 86400
           communityRulesImportErrorSeconds: 300
@@ -2232,7 +2244,7 @@ soc:
               description: Show all custom detections
             - name: "All Detections - Enabled"
               query: "so_detection.isEnabled:true | groupby so_detection.language | groupby so_detection.ruleset so_detection.severity"
-              description: Show all enalbed Detections
+              description: Show all enabled Detections
             - name: "All Detections - Disabled"
               query: "so_detection.isEnabled:false | groupby so_detection.language | groupby so_detection.ruleset so_detection.severity"
               description: Show all disabled Detections
@@ -2251,7 +2263,18 @@ soc:
             - name: "Detections with Overrides"
               query: "_exists_:so_detection.overrides | groupby so_detection.language | groupby so_detection.ruleset so_detection.isEnabled"
               description: Show Detections that have Overrides
+          detectionEngineStatusQueries: |
+            suricata:
+              default: 'tags:so-soc AND suricata | groupby log.level | groupby event.action | groupby soc.fields.error'
+              IntegrityFailure: 'event.action: "integrity check failed" AND soc.fields.detectionEngine:"suricata" | table event.dataset soc.fields.deployedButNotEnabledCount soc.fields.enabledButNotDeployedCount soc.fields.syncId'
+            elastalert:
+              default: 'tags:so-soc AND elastalert | groupby log.level | groupby event.action | groupby soc.fields.error'
+              IntegrityFailure: 'event.action: "integrity check failed" AND soc.fields.detectionEngine:"elastalert" | table event.dataset soc.fields.deployedButNotEnabledCount soc.fields.enabledButNotDeployedCount soc.fields.syncId'
+            strelka:
+              default: 'tags:so-soc AND strelka | groupby log.level | groupby event.action | groupby soc.fields.error'
+              IntegrityFailure: 'event.action: "integrity check failed" AND soc.fields.detectionEngine:"strelka" | table event.dataset soc.fields.deployedButNotEnabledCount soc.fields.enabledButNotDeployedCount soc.fields.syncId'
         detection:
+          showUnreviewedAiSummaries: false
           presets:
             severity:
                 customEnabled: false

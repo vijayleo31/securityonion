@@ -3,19 +3,16 @@
 # https://securityonion.net/license; you may not use this file except in compliance with the
 # Elastic License 2.0.
 
-{% from 'salt/map.jinja' import SALTNOTHELD %}
 {% from 'allowed_states.map.jinja' import allowed_states %}
 {% if sls in allowed_states %}
 
 include:
   - salt.minion
 
-{% if SALTNOTHELD == 1 %}
 hold_salt_master_package:
   module.run:
     - pkg.hold:
       - name: salt-master
-{% endif %}
 
 # prior to 2.4.30 this engine ran on the manager with salt-minion
 # this has changed to running with the salt-master in 2.4.30

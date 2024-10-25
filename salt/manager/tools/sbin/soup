@@ -19,6 +19,8 @@ SOUP_LOG=/root/soup.log
 WHATWOULDYOUSAYYAHDOHERE=soup
 whiptail_title='Security Onion UPdater'
 NOTIFYCUSTOMELASTICCONFIG=false
+TOPFILE=/opt/so/saltstack/default/salt/top.sls
+BACKUPTOPFILE=/opt/so/saltstack/default/salt/top.sls.backup
 # used to display messages to the user at the end of soup
 declare -a FINAL_MESSAGE_QUEUE=()
 
@@ -32,10 +34,7 @@ check_err() {
   if [[ $exit_code -ne 0 ]]; then
 
     set +e
-    systemctl_func "start" "$cron_service_name"
-    systemctl_func "start" "salt-master"
-    systemctl_func "start" "salt-minion"
-    enable_highstate
+    failed_soup_restore_items
 
     printf '%s' "Soup failed with error $exit_code: "
     case $exit_code in
@@ -347,8 +346,6 @@ highstate() {
 
 masterlock() {
   echo "Locking Salt Master"
-  TOPFILE=/opt/so/saltstack/default/salt/top.sls
-  BACKUPTOPFILE=/opt/so/saltstack/default/salt/top.sls.backup
   mv -v $TOPFILE $BACKUPTOPFILE
   echo "base:" > $TOPFILE
   echo "  $MINIONID:" >> $TOPFILE
@@ -358,8 +355,12 @@ masterlock() {
 }
 
 masterunlock() {
-  echo "Unlocking Salt Master"
-  mv -v $BACKUPTOPFILE $TOPFILE
+  if [ -f $BACKUPTOPFILE ]; then
+    echo "Unlocking Salt Master"
+    mv -v $BACKUPTOPFILE $TOPFILE
+  else
+    echo "Salt Master does not need unlocked."
+  fi
 }
 
 phases_pillar_2_4_80() {
@@ -402,6 +403,8 @@ preupgrade_changes() {
     [[ "$INSTALLEDVERSION" == 2.4.70 ]] && up_to_2.4.80
     [[ "$INSTALLEDVERSION" == 2.4.80 ]] && up_to_2.4.90
     [[ "$INSTALLEDVERSION" == 2.4.90 ]] && up_to_2.4.100
+    [[ "$INSTALLEDVERSION" == 2.4.100 ]] && up_to_2.4.110
+    [[ "$INSTALLEDVERSION" == 2.4.110 ]] && up_to_2.4.120
     true
 }
 
@@ -422,6 +425,8 @@ postupgrade_changes() {
     [[ "$POSTVERSION"  == 2.4.70 ]] && post_to_2.4.80
     [[ "$POSTVERSION"  == 2.4.80 ]] && post_to_2.4.90
     [[ "$POSTVERSION"  == 2.4.90 ]] && post_to_2.4.100
+    [[ "$POSTVERSION"  == 2.4.100 ]] && post_to_2.4.110
+    [[ "$POSTVERSION"  == 2.4.110 ]] && post_to_2.4.120
     true
 }
 
@@ -453,8 +458,6 @@ post_to_2.4.20() {
 }
 
 post_to_2.4.30() {
-  echo "Regenerating Elastic Agent Installers"
-  /sbin/so-elastic-agent-gen-installers
   # there is an occasional error with this state: pki_public_ca_crt: TypeError: list indices must be integers or slices, not str
   set +e
   salt-call state.apply ca queue=True
@@ -479,8 +482,7 @@ post_to_2.4.50() {
 }
 
 post_to_2.4.60() {
-  echo "Regenerating Elastic Agent Installers..."
-  so-elastic-agent-gen-installers
+  echo "Nothing to apply"
   POSTVERSION=2.4.60
 }
 
@@ -507,8 +509,19 @@ post_to_2.4.90() {
 }
 
 post_to_2.4.100() {
-  echo "Nothing to apply"
+  echo "Regenerating Elastic Agent Installers"
+  /sbin/so-elastic-agent-gen-installers
   POSTVERSION=2.4.100
+}
+
+post_to_2.4.110() {
+  echo "Nothing to apply"
+  POSTVERSION=2.4.110
+}
+
+post_to_2.4.120() {
+  echo "Nothing to apply"
+  POSTVERSION=2.4.120
 }
 
 repo_sync() {
@@ -527,11 +540,17 @@ stop_salt_master() {
     pkill -9 -ef "/usr/bin/python3 /bin/salt" >> $SOUP_LOG 2>&1
 
     echo ""
-    echo "Storing salt-master pid."
+    echo "Storing salt-master PID."
     MASTERPID=$(pgrep -f '/opt/saltstack/salt/bin/python3.10 /usr/bin/salt-master MainProcess')
-    echo "Found salt-master PID $MASTERPID"
-    systemctl_func "stop" "salt-master"
-    timeout 30 tail --pid=$MASTERPID -f /dev/null || echo "salt-master still running at $(date +"%T.%6N") after waiting 30s. We cannot kill due to systemd restart option."
+    if [ ! -z "$MASTERPID" ]; then
+      echo "Found salt-master PID $MASTERPID"
+      systemctl_func "stop" "salt-master"
+      if ps -p "$MASTERPID" > /dev/null 2>&1; then
+        timeout 30 tail --pid=$MASTERPID -f /dev/null || echo "salt-master still running at $(date +"%T.%6N") after waiting 30s. We cannot kill due to systemd restart option."
+      fi
+    else
+      echo "The salt-master PID was not found. The process '/usr/bin/salt-master MainProcess' is not running."
+    fi
     set -e
 }
 
@@ -587,18 +606,7 @@ up_to_2.4.20() {
 }
 
 up_to_2.4.30() {
-
-  # Remove older defend integration json & installed integration
-  rm -f /opt/so/conf/elastic-fleet/integrations/endpoints-initial/elastic-defend-endpoints.json
-
-  . $UPDATE_DIR/salt/elasticfleet/tools/sbin/so-elastic-fleet-common
-  elastic_fleet_integration_remove endpoints-initial elastic-defend-endpoints
-
-  rm -f /opt/so/state/eaintegrations.txt
-
-  # Elastic Update for this release, so download Elastic Agent files
-  determine_elastic_agent_upgrade
-  rm -f /opt/so/state/estemplates*.txt
+  echo "Nothing to do for 2.4.30"
 
   INSTALLEDVERSION=2.4.30
 }
@@ -688,14 +696,30 @@ up_to_2.4.90() {
   so-yaml.py remove /opt/so/saltstack/local/pillar/kafka/soc_kafka.sls kafka.password
   so-yaml.py add /opt/so/saltstack/local/pillar/kafka/soc_kafka.sls kafka.config.password "$kafkatrimpass"
   so-yaml.py add /opt/so/saltstack/local/pillar/kafka/soc_kafka.sls kafka.config.trustpass "$kafkatrust"
+  echo "If the Detection index exists, update the refresh_interval"
   so-elasticsearch-query so-detection*/_settings -X PUT -d '{"index":{"refresh_interval":"1s"}}'
 
   INSTALLEDVERSION=2.4.90
 }
+
 up_to_2.4.100() {
   # Elastic Update for this release, so download Elastic Agent files
   determine_elastic_agent_upgrade
   INSTALLEDVERSION=2.4.100
+}
+
+up_to_2.4.110() {
+  echo "Nothing to do for 2.4.110"
+
+  INSTALLEDVERSION=2.4.110
+}
+
+up_to_2.4.120() {
+  # this is needed for the new versionlock state
+  mkdir /opt/so/saltstack/local/pillar/versionlock
+  touch /opt/so/saltstack/local/pillar/versionlock/adv_versionlock.sls /opt/so/saltstack/local/pillar/versionlock/soc_versionlock.sls
+
+  INSTALLEDVERSION=2.4.120
 }
 
 add_detection_test_pillars() {
@@ -849,11 +873,15 @@ determine_elastic_agent_upgrade() {
   if [[ $is_airgap -eq 0 ]]; then
     update_elastic_agent_airgap
   else
-    update_elastic_agent
+    set +e
+    # the new elasticsearch defaults.yaml file is not yet placed in /opt/so/saltstack/default/salt/elasticsearch yet
+    update_elastic_agent "$UPDATE_DIR"
+    set -e
   fi
 }
 
 update_elastic_agent_airgap() {
+  get_elastic_agent_vars "/tmp/soagupdate/SecurityOnion"
   rsync -av /tmp/soagupdate/fleet/* /nsm/elastic-fleet/artifacts/
   tar -xf "$ELASTIC_AGENT_FILE" -C "$ELASTIC_AGENT_EXPANSION_DIR"
 }
@@ -890,6 +918,12 @@ update_airgap_rules() {
   rsync -av $UPDATE_DIR/agrules/suricata/* /nsm/rules/suricata/
   rsync -av $UPDATE_DIR/agrules/detect-sigma/* /nsm/rules/detect-sigma/
   rsync -av $UPDATE_DIR/agrules/detect-yara/* /nsm/rules/detect-yara/
+  # Copy the securityonion-resorces repo over for SOC Detection Summaries and checkout the published summaries branch
+  rsync -av --chown=socore:socore $UPDATE_DIR/agrules/securityonion-resources /opt/so/conf/soc/ai_summary_repos
+  git config --global --add safe.directory /opt/so/conf/soc/ai_summary_repos/securityonion-resources
+  git -C /opt/so/conf/soc/ai_summary_repos/securityonion-resources checkout generated-summaries-published
+  # Copy the securityonion-resorces repo over to nsm
+  rsync -av $UPDATE_DIR/agrules/securityonion-resources/* /nsm/securityonion-resources/
 }
 
 update_airgap_repo() {
@@ -897,7 +931,7 @@ update_airgap_repo() {
   echo "Syncing new updates to /nsm/repo"
   rsync -av $AGREPO/* /nsm/repo/
   echo "Creating repo"
-  dnf -y install yum-utils createrepo
+  dnf -y install yum-utils createrepo_c
   createrepo /nsm/repo
 }
 
@@ -957,7 +991,9 @@ upgrade_salt() {
   if [[ $is_rpm ]]; then
     echo "Removing yum versionlock for Salt."
     echo ""
-    yum versionlock delete "salt-*"
+    yum versionlock delete "salt"
+    yum versionlock delete "salt-minion"
+    yum versionlock delete "salt-master"
     echo "Updating Salt packages."
     echo ""
     set +e
@@ -975,7 +1011,9 @@ upgrade_salt() {
     set -e
     echo "Applying yum versionlock for Salt."
     echo ""
-    yum versionlock add "salt-*"
+    yum versionlock add "salt-0:$NEWSALTVERSION-0.*"
+    yum versionlock add "salt-minion-0:$NEWSALTVERSION-0.*"
+    yum versionlock add "salt-master-0:$NEWSALTVERSION-0.*"
   # Else do Ubuntu things
   elif [[ $is_deb ]]; then
     echo "Removing apt hold for Salt."
@@ -1071,6 +1109,16 @@ apply_hotfix() {
   fi
 }
 
+failed_soup_restore_items() {
+  local services=("$cron_service_name" "salt-master" "salt-minion")
+  for SERVICE_NAME in "${services[@]}"; do
+    if ! systemctl is-active --quiet "$SERVICE_NAME"; then
+      systemctl_func "start" "$SERVICE_NAME"
+    fi
+  done
+  enable_highstate
+  masterunlock
+}
 
 #upgrade salt to 3004.1
 #2_3_10_hotfix_1() {
@@ -1109,6 +1157,8 @@ main() {
   echo "Checking to see if this is a manager."
   echo ""
   require_manager
+
+  failed_soup_restore_items
 
   check_pillar_items
 
@@ -1415,6 +1465,8 @@ SOUP - Security Onion UPdater
 Please review the following for more information about the update process and recent updates:
 $DOC_BASE_URL/soup.html
 https://blog.securityonion.net
+
+WARNING: If you run soup via an SSH session and that SSH session terminates, then any processes running in that session would terminate. You should avoid leaving soup unattended especially if the machine you are SSHing from is configured to sleep after a period of time. You might also consider using something like screen or tmux so that if your SSH session terminates, the processes will continue running on the server.
 
 EOF
 
