@@ -395,6 +395,9 @@ while true; do
       list-minions)
         list_minions "$id" 
         ;;
+      manage-client)
+        manage_client "$id" "${request}"
+        ;;
       manage-minion)
         manage_minion "$id" "${request}"
         ;;
