@@ -42,6 +42,12 @@ function usage() {
             Required parameters: 
               --id <id>
               --role <role>
+
+    update: Updates a client name and note.
+            Required parameters:
+              --id <id>
+              --name <name>
+              --note <note>
   
   generate-secret: Regenerates a client's secret and outputs the new secret. 
             Required parameters: 
@@ -240,6 +246,36 @@ EOF
   addClientRole "$id" "$role"
 }
 
+function update() {
+  clientId=$1
+  name=$2
+  note=$3
+  
+  body=$(cat <<EOF
+[
+    {
+        "op": "replace",
+        "path": "/client_name",
+        "value": "$name"
+    },
+    {
+        "op": "replace",
+        "path": "/metadata",
+        "value": {
+          "note": "$note"
+        }
+    }
+]
+EOF
+  )
+  
+  response=$(curl -Ss -L --fail-with-body -X PATCH ${hydraUrl}/admin/clients/$id -d "$body")
+  if [[ $? != 0 ]]; then
+    error=$(echo $response | jq .error)
+    fail "Failed to submit request to Hydra: $error"
+  fi
+}
+
 function generateSecret() {
   clientId=$1
   
@@ -313,6 +349,17 @@ case "${operation}" in
     lock
     deleteClientRole "$id" "$role"
     echo "Successfully removed role from client"
+    ;;
+
+  "update")
+    verifyEnvironment
+    [[ "$id" == "" ]] && fail "Id must be provided"
+    [[ "$name" == "" ]] && fail "Name must be provided"
+    [[ "$note" == "" ]] && fail "Note must be provided"
+
+    lock
+    update "$id" "$name" "$note"
+    echo "Successfully updated client"
     ;;
 
   "generate-secret")

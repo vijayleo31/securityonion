@@ -177,20 +177,20 @@ function manage_client() {
       delete)
         id=$(echo "$request" | jq -r .id)
         log "Performing client '$op' for client '$id'"
-        response=$(so-client "$op" --id "$id" --skip-sync)
+        response=$(so-client "$op" --id "$id")
         exit_code=$?
         ;;
       addrole|delrole)
         id=$(echo "$request" | jq -r .id)
         role=$(echo "$request" | jq -r .role)
         log "Performing '$op' for client '$id' with role '$role'"
-        response=$(so-client "$op" --id "$id" --role "$role" --skip-sync)
+        response=$(so-client "$op" --id "$id" --role "$role")
         exit_code=$?
         ;;
       generate-secret)
         id=$(echo "$request" | jq -r .id)
         log "Performing '$op' operation for client '$id'"
-        response=$(so-client "$op" --id "$id" --skip-sync)
+        response=$(so-client "$op" --id "$id")
         webResponse=$response
         exit_code=$?
         ;;
