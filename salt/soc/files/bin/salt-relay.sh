@@ -175,31 +175,31 @@ function manage_client() {
         exit_code=$?
         ;;
       delete)
-        id=$(echo "$request" | jq -r .id)
-        log "Performing client '$op' for client '$id'"
-        response=$(so-client "$op" --id "$id")
+        client_id=$(echo "$request" | jq -r .id)
+        log "Performing client '$op' for client '$client_id'"
+        response=$(so-client "$op" --id "$client_id")
         exit_code=$?
         ;;
       addrole|delrole)
-        id=$(echo "$request" | jq -r .id)
+        client_id=$(echo "$request" | jq -r .id)
         role=$(echo "$request" | jq -r .role)
-        log "Performing '$op' for client '$id' with role '$role'"
-        response=$(so-client "$op" --id "$id" --role "$role")
+        log "Performing '$op' for client '$client_id' with role '$role'"
+        response=$(so-client "$op" --id "$client_id" --role "$role")
         exit_code=$?
         ;;
       generate-secret)
-        id=$(echo "$request" | jq -r .id)
-        log "Performing '$op' operation for client '$id'"
-        response=$(so-client "$op" --id "$id")
+        client_id=$(echo "$request" | jq -r .id)
+        log "Performing '$op' operation for client '$client_id'"
+        response=$(so-client "$op" --id "$client_id")
         webResponse=$response
         exit_code=$?
         ;;
       update)
-        id=$(echo "$request" | jq -r .id)
+        client_id=$(echo "$request" | jq -r .id)
         name=$(echo "$request" | jq -r .name)
         note=$(echo "$request" | jq -r .note)
-        log "Performing '$op' update for client '$id' with name '$name', and note '$note'"
-        response=$(so-client "$op" --id "$id" --name "$name" --note "$note")
+        log "Performing '$op' update for client '$client_id' with name '$name', and note '$note'"
+        response=$(so-client "$op" --id "$client_id" --name "$name" --note "$note")
         exit_code=$?
         ;;
       sync)
