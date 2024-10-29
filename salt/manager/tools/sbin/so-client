@@ -28,6 +28,7 @@ function usage() {
             Optional parameters: 
               --role <role>             (defaults to $DEFAULT_ROLE)
               --note <note>             (defaults to blank)
+              --raw                     only output generated secret
 
     delete: Deletes a client from the oauth2 system
             Required parameters: 
@@ -53,7 +54,7 @@ function usage() {
             Required parameters: 
               --id <id>
             Optional parameters: 
-              --skip-sync               (defers the Elastic sync until the next scheduled time)
+              --raw                     only output generated secret
 
 USAGE_EOF
   exit 1
@@ -85,6 +86,9 @@ while [[ $# -gt 0 ]]; do
     --note) 
       note=$1
       shift
+      ;;
+    --raw) 
+      raw=1
       ;;
     *) 
       echo "Encountered unexpected parameter: $param"
@@ -322,7 +326,11 @@ case "${operation}" in
 
     lock
     createClient "$name" "${role:-$DEFAULT_ROLE}" "${note}"
-    echo "Successfully added user and generated secret: $secret"
+    if [[ "$raw" == "1" ]]; then
+      echo $secret
+    else
+      echo "Successfully added user and generated secret: $secret"
+    fi
     ;;
 
   "list")
@@ -368,7 +376,11 @@ case "${operation}" in
 
     lock
     generateSecret "$id"
-    echo "Successfully generated secret: $secret"
+    if [[ "$raw" == "1" ]]; then
+      echo $secret
+    else
+      echo "Successfully generated secret: $secret"
+    fi
     ;;
 
   "delete")
