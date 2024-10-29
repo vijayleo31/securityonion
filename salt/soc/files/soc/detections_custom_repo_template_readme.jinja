@@ -1,0 +1,46 @@
+{% if repo_type == 'yara' %}
+# YARA Local Custom Rules Repository
+
+This folder has already been initialized as a git repo 
+and your Security Onion grid is configured to import any YARA rule files found here. 
+
+Just add your rule file and commit it.
+
+For example:
+
+First, create the rule file; make sure to create the file with a .yar extension
+`sudo vi my_custom_rule.yar`
+
+Next, use git to stage the new rule to be commited:
+`sudo git add my_custom_rule.yar`
+
+Finally, commit it.
+If this is your first time making changes to this repo, you will be asked to set some configuration.
+`sudo git commit -m "Initial commit of my_custom_rule.yar"`
+
+The next time the Strelka / YARA engine syncs, the new rule should be imported
+If there are errors, review the sync log to troubleshoot further.
+
+{% elif repo_type == 'sigma' %}
+# Sigma Local Custom Rules Repository
+
+This folder has already been initialized as a git repo 
+and your Security Onion grid is configured to import any Sigma rule files found here. 
+
+Just add your rule file and commit it.
+
+For example:
+
+First, create the rule file; make sure to create the file with a .yaml|.yml extension
+`sudo vi my_custom_rule.yml`
+
+Next, use git to stage the new rule to be commited:
+`sudo git add my_custom_rule.yml`
+
+Finally, commit it.
+If this is your first time making changes to this repo, you will be asked to set some configuration.
+`sudo git commit -m "Initial commit of my_custom_rule.yml"`
+
+The next time the Elastalert / Sigma engine syncs, the new rule should be imported
+If there are errors, review the sync log to troubleshoot further.
+{% endif %}
