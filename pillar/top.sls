@@ -69,6 +69,8 @@ base:
     - kafka.soc_kafka
     - kafka.adv_kafka
     - hypervisor.nodes
+    - hypervisor.soc_hypervisor
+    - hypervisor.adv_hypervisor
     - stig.soc_stig
 
   '*_sensor':

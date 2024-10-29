@@ -1,0 +1,11 @@
+hostname:
+network_mode:
+ip4:
+gw4:
+dns4:
+sarch4:
+cpu:
+memory:
+disk:
+copper:
+sfp:

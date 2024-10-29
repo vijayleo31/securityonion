@@ -34,7 +34,7 @@ def modify_network_config(image, interface, mode, ip4=None, gw4=None, dns4=None,
 
     .. code-block:: bash
 
-        salt '*' qcow2.modify_network_config image='/path/to/image.qcow2' interface='eth0' mode='static4' ip4='192.168.1.10/24' gw4='192.168.1.1' dns4='8.8.8.8,8.8.4.4' search4='example.local'
+        salt '*' qcow2.modify_network_config image='/path/to/image.qcow2' interface='eth0' mode='static4' ip4='192.168.1.10/24' gw4='192.168.1.1' dns4='192.168.1.1,8.8.8.8' search4='example.local'
 
     '''
 

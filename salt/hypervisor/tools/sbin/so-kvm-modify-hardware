@@ -101,6 +101,14 @@ def redefine_vm(conn, new_xml_desc, logger):
         sys.exit(1)
 
 def main():
+    # Set up logging using the so_logging_utils library
+    logger = setup_logging(
+        logger_name='so-kvm-modify-hardware',
+        log_file_path='/opt/so/log/hypervisor/so-kvm-modify-hardware.log',
+        log_level=logging.INFO,
+        format_str='%(asctime)s - %(levelname)s - %(message)s'
+    )
+
     try:
         args = parse_arguments()
 
@@ -109,14 +117,6 @@ def main():
         memory_amount = args.memory
         pci_id = args.pci
         start_vm_flag = args.start
-
-        # Set up logging using the so_logging_utils library
-        logger = setup_logging(
-            logger_name='so-kvm-modify-hardware',
-            log_file_path='/opt/so/log/hypervisor/so-kvm-modify-hardware.log',
-            log_level=logging.INFO,
-            format_str='%(asctime)s - %(levelname)s - %(message)s'
-        )
 
         # Connect to libvirt
         try:

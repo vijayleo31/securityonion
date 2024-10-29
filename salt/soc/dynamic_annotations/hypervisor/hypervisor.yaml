@@ -1,9 +1,14 @@
 hypervisor:
   hosts:
     defaultHost:
-      add_guest:
-        description: Add a new guest to the hypervisor.
-        forcedType: "[]string"
+      add_searchnode:
+        description: Add a new searchnode to the hypervisor.
+        file: True
+        global: True
+        multiline: True
+      add_sensor:
+        description: Add a new sensor to the hypervisor.
+        file: True
         global: True
         multiline: True
       guests:
