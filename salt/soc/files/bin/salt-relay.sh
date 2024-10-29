@@ -171,7 +171,7 @@ function manage_client() {
         note=$(echo "$request" | jq -r .note)
         log "Performing client '$op' for client with name '$name', note '$note' and role '$role'"
         response=$(so-client "$op" --name "$name" --note "$note" --role "$role" --raw)
-        webResponse=$resposne
+        webResponse=$response
         exit_code=$?
         ;;
       delete)
