@@ -28,7 +28,7 @@ function usage() {
             Optional parameters: 
               --role <role>             (defaults to $DEFAULT_ROLE)
               --note <note>             (defaults to blank)
-              --raw                     only output generated secret
+              --json                    output as JSON
 
     delete: Deletes a client from the oauth2 system
             Required parameters: 
@@ -54,7 +54,7 @@ function usage() {
             Required parameters: 
               --id <id>
             Optional parameters: 
-              --raw                     only output generated secret
+              --json                     output as JSON
 
 USAGE_EOF
   exit 1
@@ -87,8 +87,8 @@ while [[ $# -gt 0 ]]; do
       note=$1
       shift
       ;;
-    --raw) 
-      raw=1
+    --json) 
+      json=1
       ;;
     *) 
       echo "Encountered unexpected parameter: $param"
@@ -326,10 +326,10 @@ case "${operation}" in
 
     lock
     createClient "$name" "${role:-$DEFAULT_ROLE}" "${note}"
-    if [[ "$raw" == "1" ]]; then
-      echo $secret
+    if [[ "$json" == "1" ]]; then
+      echo "{\"id\":\"$id\",\"secret\":\"$secret\"}"
     else
-      echo "Successfully added user and generated secret: $secret"
+      echo "Successfully added user ID $id with generated secret: $secret"
     fi
     ;;
 
@@ -376,8 +376,8 @@ case "${operation}" in
 
     lock
     generateSecret "$id"
-    if [[ "$raw" == "1" ]]; then
-      echo $secret
+    if [[ "$json" == "1" ]]; then
+      echo "{\"secret\":\"$secret\"}"
     else
       echo "Successfully generated secret: $secret"
     fi

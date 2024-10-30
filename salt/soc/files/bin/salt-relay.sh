@@ -170,7 +170,7 @@ function manage_client() {
         name=$(echo "$request" | jq -r .name)
         note=$(echo "$request" | jq -r .note)
         log "Performing client '$op' for client with name '$name', note '$note' and role '$role'"
-        response=$(so-client "$op" --name "$name" --note "$note" --role "$role" --raw)
+        response=$(so-client "$op" --name "$name" --note "$note" --role "$role" --json)
         webResponse=$response
         exit_code=$?
         ;;
@@ -190,7 +190,7 @@ function manage_client() {
       generate-secret)
         client_id=$(echo "$request" | jq -r .id)
         log "Performing '$op' operation for client '$client_id'"
-        response=$(so-client "$op" --id "$client_id" --raw)
+        response=$(so-client "$op" --id "$client_id" --json)
         webResponse=$response
         exit_code=$?
         ;;
