@@ -9,6 +9,7 @@ kafka:
     trustpass:
     broker:
       auto_x_create_x_topics_x_enable: true
+      controller_x_quorum_x_request_x_timeout_x_ms: 3000
       default_x_replication_x_factor: 1
       inter_x_broker_x_listener_x_name: BROKER
       listeners: BROKER://0.0.0.0:9092

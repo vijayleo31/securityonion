@@ -39,9 +39,9 @@ kafka:
         title: auto.create.topics.enable
         forcedType: bool
         helpLink: kafka.html
-      controller_x_quorum_x_requests_x_timeout_x_ms:
+      controller_x_quorum_x_request_x_timeout_x_ms:
         description: Specify the amount of time broker will wait for a response from the controller.
-        title: controller.quorum.requests.timeout.ms
+        title: controller.quorum.request.timeout.ms
         forcedType: int
         helplink: kafka.html
       default_x_replication_x_factor:
