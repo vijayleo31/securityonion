@@ -144,12 +144,13 @@ rules_dir:
 git_config_set_safe_dirs:
   git.config_set:
     - name: safe.directory
+    - global: True
+    - user: socore
     - multivar:
       - /nsm/rules/custom-local-repos/local-sigma
       - /nsm/rules/custom-local-repos/local-yara
       - /nsm/securityonion-resources
       - /opt/so/conf/soc/ai_summary_repos/securityonion-resources
-    - global: True
 {% else %}
 
 {{sls}}_state_not_allowed:
