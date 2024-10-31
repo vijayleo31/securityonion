@@ -6,6 +6,9 @@
   "template": {
     "mappings": {
       "properties": {
+        "@timestamp": {
+          "type": "date"
+        },
         "so": {
           "properties": {
             "ip_address": {
