@@ -11,22 +11,18 @@ else
   source $(dirname $0)/../../../common/tools/sbin/so-common
 fi
 
-
-DEFAULT_ROLE=limited-auditor
-
 function usage() {
   cat <<USAGE_EOF
   Usage: $0 <operation> [supporting parameters]
   
   where <operation> is one of the following:
   
-      list: Lists all client IDs and roles currently defined in the oauth2 system
+      list: Lists all client IDs and permissions currently defined in the oauth2 system
   
        add: Adds a new client to the oauth2 system and outputs the generated secret
             Required parameters: 
               --name <name>
             Optional parameters: 
-              --role <role>             (defaults to $DEFAULT_ROLE)
               --note <note>             (defaults to blank)
               --json                    output as JSON
 
@@ -34,15 +30,15 @@ function usage() {
             Required parameters: 
               --id <id>
   
-   addrole: Grants a role to an existing client
+   addperm: Grants a permission to an existing client
             Required parameters: 
               --id <id>
-              --role <role>
+              --permission <permission>
   
-   delrole: Removes a role from an existing client
+   delperm: Removes a permission from an existing client
             Required parameters: 
               --id <id>
-              --role <role>
+              --permission <permission>
 
     update: Updates a client name and note.
             Required parameters:
@@ -73,18 +69,22 @@ while [[ $# -gt 0 ]]; do
   case "$param" in
     --id)
       id=$1
+      [[ ${#id} -gt 55 ]] && fail("id cannot be longer than 55 characters")
       shift
       ;;
-    --role)
-      role=$1
+    --permission)
+      perm=$1
+      [[ ${#perm} -gt 50 ]] && fail("permission cannot be longer than 50 characters")
       shift
       ;;
     --name)
       name=$1
+      [[ ${#name} -gt 50 ]] && fail("name cannot be longer than 50 characters")
       shift
       ;;
     --note) 
       note=$1
+      [[ ${#note} -gt 50 ]] && fail("note cannot be longer than 500 characters")
       shift
       ;;
     --json) 
@@ -160,28 +160,28 @@ function listClients() {
 
   clientIds=$(echo "${response}" | jq -r ".[] | .client_id" | sort)
   for clientId in $clientIds; do
-    roles=$(grep ":$clientId\$" "$socRolesFile" | cut -d: -f1 | tr '\n' ' ')
-    echo "$clientId: $roles"
+    perms=$(grep ":$clientId\$" "$socRolesFile" | cut -d: -f1 | tr '\n' ' ')
+    echo "$clientId: $perms"
   done
 }
 
-function addClientRole() {
+function addClientPermission() {
   id=$1
-  role=$2
+  perm=$2
 
-  adjustClientRole "$id" "$role" "add"
+  adjustClientPermission "$id" "$perm" "add"
 }
 
-function deleteClientRole() {
+function deleteClientPermission() {
   id=$1
-  role=$2
+  perm=$2
 
-  adjustClientRole "$id" "$role" "del"
+  adjustClientPermission "$id" "$perm" "del"
 }
 
-function adjustClientRole() {
+function adjustClientPermission() {
   identityId=$1
-  role=$2
+  perm=$2
   op=$3
 
   [[ ${identityId} == "" ]] && fail "Client not found"
@@ -189,25 +189,25 @@ function adjustClientRole() {
   ensureRoleFileExists
 
   filename="$socRolesFile"
-  hasRole=0
-  grep "^$role:" "$socRolesFile" | grep -q "$identityId" && hasRole=1
+  hasPerm=0
+  grep "^$perm:" "$socRolesFile" | grep -q "$identityId" && hasPerm=1
   if [[ "$op" == "add" ]]; then
-    if [[ "$hasRole" == "1" ]]; then
-      echo "Client '$identityId' already has the role: $role"
+    if [[ "$hasPerm" == "1" ]]; then
+      echo "Client '$identityId' already has the permission: $perm"
       return 1
     else
-      echo "$role:$identityId" >> "$filename"
+      echo "$perm:$identityId" >> "$filename"
     fi
   elif [[ "$op" == "del" ]]; then
-    if [[ "$hasRole" -ne 1 ]]; then
-      fail "Client '$identityId' does not have the role: $role"
+    if [[ "$hasPermission" -ne 1 ]]; then
+      fail "Client '$identityId' does not have the permission: $perm"
     else
-      sed -e "\!^$role:$identityId\$!d" "$filename" > "$filename.tmp"
+      sed -e "\!^$perm:$identityId\$!d" "$filename" > "$filename.tmp"
       cat "$filename".tmp > "$filename"
       rm -f "$filename".tmp
     fi
   else
-    fail "Unsupported role adjustment operation: $op"
+    fail "Unsupported permission adjustment operation: $op"
   fi
   return 0
 }
@@ -221,7 +221,7 @@ function convertNameToId() {
 
 function createClient() {
   name=$1
-  role=$2
+  perm=$2
   note=$3
 
   id=$(convertNameToId "$name")
@@ -247,7 +247,7 @@ EOF
     error=$(echo $response | jq .error)
     fail "Failed to submit request to Hydra: $error"
   fi
-  addClientRole "$id" "$role"
+  addClientPermission "$id" "$perm"
 }
 
 function update() {
@@ -325,7 +325,7 @@ case "${operation}" in
     [[ "$name" == "" ]] && fail "A short client name must be provided"
 
     lock
-    createClient "$name" "${role:-$DEFAULT_ROLE}" "${note}"
+    createClient "$name" "${note}"
     if [[ "$json" == "1" ]]; then
       echo "{\"id\":\"$id\",\"secret\":\"$secret\"}"
     else
@@ -338,25 +338,25 @@ case "${operation}" in
     listClients
     ;;
 
-  "addrole")
+  "addperm")
     verifyEnvironment
     [[ "$id" == "" ]] && fail "Id must be provided"
-    [[ "$role" == "" ]] && fail "Role must be provided"
+    [[ "$perm" == "" ]] && fail "Permission must be provided"
 
     lock
-    if addClientRole "$id" "$role"; then
-      echo "Successfully added role to client"
+    if addClientPermission "$id" "$perm"; then
+      echo "Successfully added permission to client"
     fi
     ;;
 
-  "delrole")
+  "delperm")
     verifyEnvironment
     [[ "$id" == "" ]] && fail "Id must be provided"
-    [[ "$role" == "" ]] && fail "Role must be provided"
+    [[ "$perm" == "" ]] && fail "Permission must be provided"
 
     lock
-    deleteClientRole "$id" "$role"
-    echo "Successfully removed role from client"
+    deleteClientPermission "$id" "$perm"
+    echo "Successfully removed permission from client"
     ;;
 
   "update")
