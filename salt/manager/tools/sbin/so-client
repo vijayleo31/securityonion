@@ -69,22 +69,22 @@ while [[ $# -gt 0 ]]; do
   case "$param" in
     --id)
       id=$1
-      [[ ${#id} -gt 55 ]] && fail("id cannot be longer than 55 characters")
+      [[ ${#id} -gt 55 ]] && fail "id cannot be longer than 55 characters"
       shift
       ;;
     --permission)
       perm=$1
-      [[ ${#perm} -gt 50 ]] && fail("permission cannot be longer than 50 characters")
+      [[ ${#perm} -gt 50 ]] && fail "permission cannot be longer than 50 characters"
       shift
       ;;
     --name)
       name=$1
-      [[ ${#name} -gt 50 ]] && fail("name cannot be longer than 50 characters")
+      [[ ${#name} -gt 50 ]] && fail "name cannot be longer than 50 characters"
       shift
       ;;
     --note) 
       note=$1
-      [[ ${#note} -gt 50 ]] && fail("note cannot be longer than 500 characters")
+      [[ ${#note} -gt 50 ]] && fail "note cannot be longer than 500 characters"
       shift
       ;;
     --json) 
