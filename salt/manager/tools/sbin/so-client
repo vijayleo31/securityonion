@@ -247,7 +247,6 @@ EOF
     error=$(echo $response | jq .error)
     fail "Failed to submit request to Hydra: $error"
   fi
-  addClientPermission "$id" "$perm"
 }
 
 function update() {

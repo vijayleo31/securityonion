@@ -89,7 +89,7 @@ function manage_user() {
       add)
         email=$(echo "$request" | jq -r .email)
         password=$(echo "$request" | jq -r .password)
-        role=$(echo "$request" | jq -r .role)
+        perm=$(echo "$request" | jq -r .role)
         firstName=$(echo "$request" | jq -r .firstName)
         lastName=$(echo "$request" | jq -r .lastName)
         note=$(echo "$request" | jq -r .note)
@@ -166,11 +166,10 @@ function manage_client() {
   while [[ $tries -lt $max_tries ]]; do
     case "$op" in
       add)
-        role=$(echo "$request" | jq -r .role)
         name=$(echo "$request" | jq -r .name)
         note=$(echo "$request" | jq -r .note)
-        log "Performing client '$op' for client with name '$name', note '$note' and role '$role'"
-        response=$(so-client "$op" --name "$name" --note "$note" --role "$role" --json)
+        log "Performing client '$op' for client with name '$name' and note '$note'"
+        response=$(so-client "$op" --name "$name" --note "$note" --json)
         webResponse=$response
         exit_code=$?
         ;;
@@ -180,11 +179,11 @@ function manage_client() {
         response=$(so-client "$op" --id "$client_id")
         exit_code=$?
         ;;
-      addrole|delrole)
+      addperm|delperm)
         client_id=$(echo "$request" | jq -r .id)
-        role=$(echo "$request" | jq -r .role)
-        log "Performing '$op' for client '$client_id' with role '$role'"
-        response=$(so-client "$op" --id "$client_id" --role "$role")
+        perm=$(echo "$request" | jq -r .permission)
+        log "Performing '$op' for client '$client_id' with permission '$perm'"
+        response=$(so-client "$op" --id "$client_id" --permission "$perm")
         exit_code=$?
         ;;
       generate-secret)
