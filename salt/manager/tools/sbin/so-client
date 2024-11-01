@@ -375,10 +375,10 @@ case "${operation}" in
     [[ "$id" == "" ]] && fail "Id must be provided"
     [[ "$name" == "" ]] && fail "Name must be provided"
     [[ "$note" == "__MISSING__" ]] && fail "Note must be provided"
-    [[ "$searchusername" == "__MISSING__" ]] && fail "Search Username must be provided"
+    [[ "$searchUsername" == "__MISSING__" ]] && fail "Search Username must be provided"
 
     lock
-    update "$id" "$name" "$note" "$searchusername"
+    update "$id" "$name" "$note" "$searchUsername"
     echo "Successfully updated client"
     ;;
 
