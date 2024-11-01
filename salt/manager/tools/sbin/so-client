@@ -64,6 +64,9 @@ fi
 operation=$1
 shift
 
+searchUsername=__MISSING__
+note=__MISSING__
+
 while [[ $# -gt 0 ]]; do
   param=$1
   shift
@@ -89,8 +92,8 @@ while [[ $# -gt 0 ]]; do
       shift
       ;;
     --searchusername) 
-      searchusername=$1
-      [[ ${#searchusername} -gt 50 ]] && fail "search username cannot be longer than 50 characters"
+      searchUsername=$1
+      [[ ${#searchUsername} -gt 50 ]] && fail "search username cannot be longer than 50 characters"
       shift
       ;;
     --json) 
@@ -260,6 +263,7 @@ function update() {
   clientId=$1
   name=$2
   note=$3
+  username=$4
   
   body=$(cat <<EOF
 [
@@ -273,7 +277,7 @@ function update() {
         "path": "/metadata",
         "value": {
           "note": "$note",
-          "searchUsername": "$searchusername"
+          "searchUsername": "$username"
         }
     }
 ]
@@ -370,8 +374,8 @@ case "${operation}" in
     verifyEnvironment
     [[ "$id" == "" ]] && fail "Id must be provided"
     [[ "$name" == "" ]] && fail "Name must be provided"
-    [[ "$note" == "" ]] && fail "Note must be provided"
-    [[ "$searchusername" == "" ]] && fail "Search Username must be provided"
+    [[ "$note" == "__MISSING__" ]] && fail "Note must be provided"
+    [[ "$searchusername" == "__MISSING__" ]] && fail "Search Username must be provided"
 
     lock
     update "$id" "$name" "$note" "$searchusername"
