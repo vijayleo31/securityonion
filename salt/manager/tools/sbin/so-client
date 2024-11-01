@@ -242,7 +242,7 @@ function createClient() {
   "grant_types": [ "client_credentials" ],
   "response_types": [ "code" ],
   "metadata": {
-    "note": "$note"
+    "note": "$note",
     "searchUsername": ""
   }
 }

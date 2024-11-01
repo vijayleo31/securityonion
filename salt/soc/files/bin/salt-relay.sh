@@ -170,8 +170,8 @@ function manage_client() {
         note=$(echo "$request" | jq -r .note)
         log "Performing client '$op' for client with name '$name' and note '$note'"
         response=$(so-client "$op" --name "$name" --note "$note" --json)
-        webResponse=$response
         exit_code=$?
+        webResponse=$response
         ;;
       delete)
         client_id=$(echo "$request" | jq -r .id)
@@ -190,8 +190,8 @@ function manage_client() {
         client_id=$(echo "$request" | jq -r .id)
         log "Performing '$op' operation for client '$client_id'"
         response=$(so-client "$op" --id "$client_id" --json)
-        webResponse=$response
         exit_code=$?
+        webResponse=$response
         ;;
       update)
         client_id=$(echo "$request" | jq -r .id)
