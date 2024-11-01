@@ -272,6 +272,7 @@ function update() {
         "path": "/metadata",
         "value": {
           "note": "$note"
+          "searchUsername": "$searchusername"
         }
     }
 ]
