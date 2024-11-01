@@ -197,13 +197,9 @@ function manage_client() {
         client_id=$(echo "$request" | jq -r .id)
         name=$(echo "$request" | jq -r .name)
         note=$(echo "$request" | jq -r .note)
-        log "Performing '$op' update for client '$client_id' with name '$name', and note '$note'"
-        response=$(so-client "$op" --id "$client_id" --name "$name" --note "$note")
-        exit_code=$?
-        ;;
-      sync)
-        log "Performing '$op'"
-        response=$(so-user "$op")
+        searchusername=$(echo "$request" | jq -r .searchusername)
+        log "Performing '$op' update for client '$client_id' with name '$name', search username '$searchusername', and note '$note'"
+        response=$(so-client "$op" --id "$client_id" --name "$name" --searchusername "$searchusername" --note "$note")
         exit_code=$?
         ;;
       *)

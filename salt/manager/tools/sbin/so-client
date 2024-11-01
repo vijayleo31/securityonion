@@ -45,6 +45,7 @@ function usage() {
               --id <id>
               --name <name>
               --note <note>
+              --searchusername <run-as username>
   
   generate-secret: Regenerates a client's secret and outputs the new secret. 
             Required parameters: 
@@ -84,7 +85,12 @@ while [[ $# -gt 0 ]]; do
       ;;
     --note) 
       note=$1
-      [[ ${#note} -gt 50 ]] && fail "note cannot be longer than 500 characters"
+      [[ ${#note} -gt 100 ]] && fail "note cannot be longer than 100 characters"
+      shift
+      ;;
+    --searchusername) 
+      searchusername=$1
+      [[ ${#searchusername} -gt 50 ]] && fail "search username cannot be longer than 50 characters"
       shift
       ;;
     --json) 
@@ -199,7 +205,7 @@ function adjustClientPermission() {
       echo "$perm:$identityId" >> "$filename"
     fi
   elif [[ "$op" == "del" ]]; then
-    if [[ "$hasPermission" -ne 1 ]]; then
+    if [[ "$hasPerm" -ne 1 ]]; then
       fail "Client '$identityId' does not have the permission: $perm"
     else
       sed -e "\!^$perm:$identityId\$!d" "$filename" > "$filename.tmp"
@@ -328,7 +334,7 @@ case "${operation}" in
     if [[ "$json" == "1" ]]; then
       echo "{\"id\":\"$id\",\"secret\":\"$secret\"}"
     else
-      echo "Successfully added user ID $id with generated secret: $secret"
+      echo "Successfully added client ID $id with generated secret: $secret"
     fi
     ;;
 
@@ -363,9 +369,10 @@ case "${operation}" in
     [[ "$id" == "" ]] && fail "Id must be provided"
     [[ "$name" == "" ]] && fail "Name must be provided"
     [[ "$note" == "" ]] && fail "Note must be provided"
+    [[ "$searchusername" == "" ]] && fail "Search Username must be provided"
 
     lock
-    update "$id" "$name" "$note"
+    update "$id" "$name" "$note" "$searchusername"
     echo "Successfully updated client"
     ;;
 
@@ -388,7 +395,7 @@ case "${operation}" in
 
     lock
     deleteClient "$id"
-    echo "Successfully deleted client. Run 'so-user sync' to sync with Elasticsearch."
+    echo "Successfully deleted client."
     ;;
   *)
     fail "Unsupported operation: $operation"
