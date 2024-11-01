@@ -243,6 +243,7 @@ function createClient() {
   "response_types": [ "code" ],
   "metadata": {
     "note": "$note"
+    "searchUsername": ""
   }
 }
 EOF
@@ -271,7 +272,7 @@ function update() {
         "op": "replace",
         "path": "/metadata",
         "value": {
-          "note": "$note"
+          "note": "$note",
           "searchUsername": "$searchusername"
         }
     }
