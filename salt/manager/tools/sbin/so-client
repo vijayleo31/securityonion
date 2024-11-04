@@ -72,27 +72,27 @@ while [[ $# -gt 0 ]]; do
   shift
   case "$param" in
     --id)
-      id=$1
+      id=$(echo $1 | sed 's/"/\\"/g')
       [[ ${#id} -gt 55 ]] && fail "id cannot be longer than 55 characters"
       shift
       ;;
     --permission)
-      perm=$1
+      perm=$(echo $1 | sed 's/"/\\"/g')
       [[ ${#perm} -gt 50 ]] && fail "permission cannot be longer than 50 characters"
       shift
       ;;
     --name)
-      name=$1
+      name=$(echo $1 | sed 's/"/\\"/g')
       [[ ${#name} -gt 50 ]] && fail "name cannot be longer than 50 characters"
       shift
       ;;
     --note) 
-      note=$1
+      note=$(echo $1 | sed 's/"/\\"/g')
       [[ ${#note} -gt 100 ]] && fail "note cannot be longer than 100 characters"
       shift
       ;;
     --searchusername) 
-      searchUsername=$1
+      searchUsername=$(echo $1 | sed 's/"/\\"/g')
       [[ ${#searchUsername} -gt 50 ]] && fail "search username cannot be longer than 50 characters"
       shift
       ;;
@@ -230,8 +230,7 @@ function convertNameToId() {
 
 function createClient() {
   name=$1
-  perm=$2
-  note=$3
+  note=$2
 
   id=$(convertNameToId "$name")
   now=$(date -u +%FT%TZ)
@@ -336,7 +335,7 @@ case "${operation}" in
     [[ "$name" == "" ]] && fail "A short client name must be provided"
 
     lock
-    createClient "$name" "${note}"
+    createClient "$name" "$note"
     if [[ "$json" == "1" ]]; then
       echo "{\"id\":\"$id\",\"secret\":\"$secret\"}"
     else

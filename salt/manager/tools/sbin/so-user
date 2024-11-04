@@ -100,23 +100,23 @@ while [[ $# -gt 0 ]]; do
   shift
   case "$param" in
     --email)
-      email=$1
+      email=$(echo $1 | sed 's/"/\\"/g')
       shift
       ;;
     --role)
-      role=$1
+      role=$(echo $1 | sed 's/"/\\"/g')
       shift
       ;;
     --firstName)
-      firstName=$1
+      firstName=$(echo $1 | sed 's/"/\\"/g')
       shift
       ;;
     --lastName) 
-      lastName=$1
+      lastName=$(echo $1 | sed 's/"/\\"/g')
       shift
       ;;
     --note) 
-      note=$1
+      note=$(echo $1 | sed 's/"/\\"/g')
       shift
       ;;
     --skip-sync) 
