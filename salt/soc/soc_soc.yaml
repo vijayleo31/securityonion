@@ -390,6 +390,11 @@ soc:
             advanced: True
             forcedType: "[]{}"
             helpLink: suricata.html
+          ignoredSidRanges:
+            description: 'List of Suricata SID ranges to ignore during the Integrity Check. This is useful for ignoring specific rules not governed by the UI.'
+            global: True
+            advanced: True
+            forcedType: "[]string"
       client:
         enableReverseLookup:
           description: Set to true to enable reverse DNS lookups for IP addresses in the SOC UI.

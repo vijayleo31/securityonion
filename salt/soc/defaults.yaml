@@ -1435,6 +1435,8 @@ soc:
           rulesFingerprintFile: /opt/sensoroni/fingerprints/emerging-all.fingerprint
           stateFilePath: /opt/sensoroni/fingerprints/suricataengine.state
           integrityCheckFrequencySeconds: 1200
+          ignoredSidRanges:
+            - '1100000-1199999'
       client:
         enableReverseLookup: false
         docsUrl: /docs/
