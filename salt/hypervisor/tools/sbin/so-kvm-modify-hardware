@@ -8,11 +8,48 @@
 """
 Script to modify hardware parameters of a KVM virtual machine.
 
-Usage:
-    python so-kvm-modify-hardware.py -v <vm_name> [-c <cpu_count>] [-m <memory_amount>] [-p <pci_id>] [-s]
+**Usage:**
+    python so-kvm-modify-hardware.py -v <vm_name> [-c <cpu_count>] [-m <memory_amount>] [-p <pci_id>] [-p <pci_id> ...] [-s]
 
-Example:
-    python so-kvm-modify-hardware.py -v my_vm -c 4 -m 8192 -p 0000:00:1f.2 -s
+**Options:**
+    -v, --vm          Name of the virtual machine to modify.
+    -c, --cpu         Number of virtual CPUs to assign.
+    -m, --memory      Amount of memory to assign in MiB.
+    -p, --pci         PCI hardware ID(s) to passthrough to the VM (e.g., 0000:00:1f.2). Can be specified multiple times.
+    -s, --start       Start the VM after modification.
+
+**Examples:**
+
+1. **Modify VM with Multiple PCI Devices:**
+
+    ```bash
+    python so-kvm-modify-hardware.py -v my_vm -c 4 -m 8192 -p 0000:00:1f.2 -p 0000:00:1f.3 -s
+    ```
+
+    This command modifies the VM named `my_vm`, setting the CPU count to 4, memory to 8192 MiB, and adds two PCI devices for passthrough (`0000:00:1f.2` and `0000:00:1f.3`). The VM is then started after modification due to the `-s` flag.
+
+2. **Modify VM with Single PCI Device:**
+
+    ```bash
+    python so-kvm-modify-hardware.py -v my_vm -p 0000:00:1f.2
+    ```
+
+    This command adds a single PCI device passthrough to the VM named `my_vm`.
+
+3. **Modify VM Without Starting It:**
+
+    ```bash
+    python so-kvm-modify-hardware.py -v my_vm -c 2 -m 4096
+    ```
+
+    This command sets the CPU count and memory for `my_vm` but does not start it afterward.
+
+**Notes:**
+
+- The `-p` or `--pci` option can be specified multiple times to pass through multiple PCI devices to the VM.
+- The PCI hardware IDs should be in the format `0000:00:1f.2`.
+- If the `-s` or `--start` flag is not provided, the VM will remain stopped after modification.
+
 """
 
 import argparse
@@ -28,12 +65,12 @@ def parse_arguments():
     parser.add_argument('-v', '--vm', required=True, help='Name of the virtual machine to modify.')
     parser.add_argument('-c', '--cpu', type=int, help='Number of virtual CPUs to assign.')
     parser.add_argument('-m', '--memory', type=int, help='Amount of memory to assign in MiB.')
-    parser.add_argument('-p', '--pci', help='PCI hardware ID to passthrough to the VM (e.g., 0000:00:1f.2).')
+    parser.add_argument('-p', '--pci', action='append', help='PCI hardware ID(s) to passthrough to the VM (e.g., 0000:00:1f.2). Can be specified multiple times.')
     parser.add_argument('-s', '--start', action='store_true', help='Start the VM after modification.')
     args = parser.parse_args()
     return args
 
-def modify_vm(dom, cpu_count, memory_amount, pci_id, logger):
+def modify_vm(dom, cpu_count, memory_amount, pci_ids, logger):
     try:
         # Get the XML description of the VM
         xml_desc = dom.XMLDesc()
@@ -61,26 +98,28 @@ def modify_vm(dom, cpu_count, memory_amount, pci_id, logger):
                 logger.error("Could not find <memory> elements in XML.")
                 sys.exit(1)
 
-        # Add PCI device passthrough
-        if pci_id is not None:
+        # Add PCI device passthrough(s)
+        if pci_ids:
             devices_elem = root.find('./devices')
             if devices_elem is not None:
-                hostdev_elem = ET.SubElement(devices_elem, 'hostdev', attrib={
-                    'mode': 'subsystem',
-                    'type': 'pci',
-                    'managed': 'yes'
-                })
-                source_elem = ET.SubElement(hostdev_elem, 'source')
-                domain_id, bus_slot_func = pci_id.split(':')
-                bus_slot, function = bus_slot_func.split('.')
-                address_attrs = {
-                    'domain': f'0x{domain_id}',
-                    'bus': f'0x{bus_slot}',
-                    'slot': f'0x{bus_slot}',
-                    'function': f'0x{function}'
-                }
-                ET.SubElement(source_elem, 'address', attrib=address_attrs)
-                logger.info(f"Added PCI device passthrough for {pci_id}.")
+                for pci_id in pci_ids:
+                    hostdev_elem = ET.SubElement(devices_elem, 'hostdev', attrib={
+                        'mode': 'subsystem',
+                        'type': 'pci',
+                        'managed': 'yes'
+                    })
+                    source_elem = ET.SubElement(hostdev_elem, 'source')
+                    domain_id, bus_slot_func = pci_id.split(':', 1)
+                    bus_slot, function = bus_slot_func.split('.')
+                    bus, slot = bus_slot[:2], bus_slot[2:]
+                    address_attrs = {
+                        'domain': f'0x{domain_id}',
+                        'bus': f'0x{bus}',
+                        'slot': f'0x{slot}',
+                        'function': f'0x{function}'
+                    }
+                    ET.SubElement(source_elem, 'address', attrib=address_attrs)
+                    logger.info(f"Added PCI device passthrough for {pci_id}.")
             else:
                 logger.error("Could not find <devices> element in XML.")
                 sys.exit(1)
@@ -115,7 +154,7 @@ def main():
         vm_name = args.vm
         cpu_count = args.cpu
         memory_amount = args.memory
-        pci_id = args.pci
+        pci_ids = args.pci  # This will be a list or None
         start_vm_flag = args.start
 
         # Connect to libvirt
@@ -129,7 +168,7 @@ def main():
         dom = stop_vm(conn, vm_name, logger)
 
         # Modify VM XML
-        new_xml_desc = modify_vm(dom, cpu_count, memory_amount, pci_id, logger)
+        new_xml_desc = modify_vm(dom, cpu_count, memory_amount, pci_ids, logger)
 
         # Redefine VM
         redefine_vm(conn, new_xml_desc, logger)

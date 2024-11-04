@@ -1,10 +1,5 @@
 #!py
 
-# Copyright Security Onion Solutions LLC and/or licensed to Security Onion Solutions LLC under one
-# or more contributor license agreements. Licensed under the Elastic License 2.0 as shown at
-# https://securityonion.net/license; you may not use this file except in compliance with the
-# Elastic License 2.0.
-
 import logging
 import subprocess
 import shlex
@@ -53,6 +48,61 @@ def modify_network_config(image, interface, mode, ip4=None, gw4=None, dns4=None,
             cmd.extend(['--search4', search4])
     else:
         raise ValueError("Invalid mode '{}'. Expected 'dhcp4' or 'static4'.".format(mode))
+
+    log.info('qcow2 module: Executing command: {}'.format(' '.join(shlex.quote(arg) for arg in cmd)))
+
+    try:
+        result = subprocess.run(cmd, capture_output=True, text=True, check=False)
+        ret = {
+            'retcode': result.returncode,
+            'stdout': result.stdout,
+            'stderr': result.stderr
+        }
+        if result.returncode != 0:
+            log.error('qcow2 module: Script execution failed with return code {}: {}'.format(result.returncode, result.stderr))
+        else:
+            log.info('qcow2 module: Script executed successfully.')
+        return ret
+    except Exception as e:
+        log.error('qcow2 module: An error occurred while executing the script: {}'.format(e))
+        raise
+
+def modify_hardware_config(vm_name, cpu=None, memory=None, pci=None, start=False):
+    '''
+    Wrapper function to call so-kvm-modify-hardware
+
+    :param vm_name: Name of the virtual machine to modify.
+    :param cpu: Number of virtual CPUs to assign.
+    :param memory: Amount of memory to assign in MiB.
+    :param pci: PCI hardware ID to passthrough to the VM (e.g., '0000:00:1f.2').
+    :param start: Boolean flag to start the VM after modification.
+
+    :return: A dictionary with the result of the script execution.
+
+    CLI Example:
+
+    .. code-block:: bash
+
+        salt '*' qcow2.modify_hardware_config vm_name='my_vm' cpu=4 memory=8192 pci='0000:00:1f.2' start=True
+
+    '''
+
+    cmd = ['/usr/sbin/so-kvm-modify-hardware', '-v', vm_name]
+
+    if cpu is not None:
+        if isinstance(cpu, int) and cpu > 0:
+            cmd.extend(['-c', str(cpu)])
+        else:
+            raise ValueError('cpu must be a positive integer.')
+    if memory is not None:
+        if isinstance(memory, int) and memory > 0:
+            cmd.extend(['-m', str(memory)])
+        else:
+            raise ValueError('memory must be a positive integer.')
+    if pci:
+        cmd.extend(['-p', pci])
+    if start:
+        cmd.append('-s')
 
     log.info('qcow2 module: Executing command: {}'.format(' '.join(shlex.quote(arg) for arg in cmd)))
 

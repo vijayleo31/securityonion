@@ -3,7 +3,7 @@ network_mode:
 ip4:
 gw4:
 dns4:
-sarch4:
+search4:
 cpu:
 memory:
 disk:
