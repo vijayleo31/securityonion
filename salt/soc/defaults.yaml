@@ -1436,7 +1436,7 @@ soc:
           stateFilePath: /opt/sensoroni/fingerprints/suricataengine.state
           integrityCheckFrequencySeconds: 1200
           ignoredSidRanges:
-            - '1100000-1199999'
+            - '1100000-1101000'
       client:
         enableReverseLookup: false
         docsUrl: /docs/
