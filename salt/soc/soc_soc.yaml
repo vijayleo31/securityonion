@@ -395,6 +395,7 @@ soc:
             global: True
             advanced: True
             forcedType: "[]string"
+            helpLink: detections.html#rule-engine-status
       client:
         enableReverseLookup:
           description: Set to true to enable reverse DNS lookups for IP addresses in the SOC UI.
