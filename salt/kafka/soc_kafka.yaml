@@ -224,3 +224,34 @@ kafka:
         title: process.roles
         readonly: True
         helpLink: kafka.html
+    external:
+      custom001: &external
+        enabled:
+          description: Enable or disable the creation of certificate for accessing Kafka externally
+          forcedType: bool
+          helpLink: kafka.html
+        name:
+          description: Name of certificate
+          helpLink: kafka.html
+        password:
+          description: Password used for certificate
+          sensitive: True
+          helpLink: kafka.html
+        hostname:
+          description: Hostname to be included in certificate subjectAltName
+          helpLink: kafka.html
+        ip:
+          description: IP address to be included in certificate subjectAltName
+          helpLink: kafka.html
+        days_valid:
+          description: Number of days the custom certificate is valid for
+          helpLink: kafka.html
+      custom002: *external
+      custom003: *external
+      custom004: *external
+      custom005: *external
+      custom006: *external
+      custom007: *external
+      custom008: *external
+      custom009: *external
+      custom010: *external

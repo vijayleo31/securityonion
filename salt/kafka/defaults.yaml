@@ -41,7 +41,7 @@ kafka:
       ssl_x_truststore_x_location: /etc/pki/kafka-truststore.jks
       ssl_x_truststore_x_type: JKS
       ssl_x_truststore_x_password:
-      ssl_x_keystore_x_location: /etc/pki/kafka.p12
+      ssl_x_keystore_x_location: /etc/pki/kafka-client.p12
       ssl_x_keystore_x_type: PKCS12
       ssl_x_keystore_x_password:
     controller:
@@ -60,3 +60,74 @@ kafka:
       ssl_x_truststore_x_location: /etc/pki/kafka-truststore.jks
       ssl_x_truststore_x_type: JKS
       ssl_x_truststore_x_password:
+    external:
+      custom001:
+        enabled: false
+        name: custom001
+        password: default_placeholder
+        hostname: localhost
+        ip: 127.0.0.1
+        days_valid: 365
+      custom002:
+        enabled: false
+        name: custom002
+        password: default_placeholder
+        hostname: localhost
+        ip: 127.0.0.1
+        days_valid: 365
+      custom003:
+        enabled: false
+        name: custom003
+        password: default_placeholder
+        hostname: localhost
+        ip: 127.0.0.1
+        days_valid: 365
+      custom004:
+        enabled: false
+        name: custom004
+        password: default_placeholder
+        hostname: localhost
+        ip: 127.0.0.1
+        days_valid: 365
+      custom005:
+        enabled: false
+        name: custom005
+        password: default_placeholder
+        hostname: localhost
+        ip: 127.0.0.1
+        days_valid: 365
+      custom006:
+        enabled: false
+        name: custom006
+        password: default_placeholder
+        hostname: localhost
+        ip: 127.0.0.1
+        days_valid: 365
+      custom007:
+        enabled: false
+        name: custom007
+        password: default_placeholder
+        hostname: localhost
+        ip: 127.0.0.1
+        days_valid: 365
+      custom008:
+        enabled: false
+        name: custom008
+        password: default_placeholder
+        hostname: localhost
+        ip: 127.0.0.1
+        days_valid: 365
+      custom009:
+        enabled: false
+        name: custom009
+        password: default_placeholder
+        hostname: localhost
+        ip: 127.0.0.1
+        days_valid: 365
+      custom010:
+        enabled: false
+        name: custom010
+        password: default_placeholder
+        hostname: localhost
+        ip: 127.0.0.1
+        days_valid: 365
