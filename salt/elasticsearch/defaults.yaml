@@ -3595,7 +3595,7 @@ elasticsearch:
         template:
           settings:
             index:
-              number_of_replicas:
+              number_of_replicas: 0
         composed_of:
         - logs-crowdstrike.fdr@package
         - logs-crowdstrike.fdr@custom
