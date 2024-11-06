@@ -64,7 +64,7 @@
             },
             "tags": {
               "ignore_above": 1024,
-        "type": "keyword"
+              "type": "keyword"
             },
             "ruleset": {
               "ignore_above": 1024,
@@ -81,6 +81,12 @@
             "license": {
               "ignore_above": 1024,
               "type": "keyword"
+            },
+            "sourceCreated": {
+              "type": "date"
+            },
+            "sourceUpdated": {
+              "type": "date"
             },
             "overrides": {
               "properties": {
