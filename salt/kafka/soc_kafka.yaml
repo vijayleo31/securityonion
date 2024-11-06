@@ -232,19 +232,23 @@ kafka:
           helpLink: kafka.html
         name:
           description: Name of certificate
+          forcedType: string
           helpLink: kafka.html
         password:
           description: Password used for certificate
           sensitive: True
+          forcedType: string
           helpLink: kafka.html
         hostname:
           description: Hostname to be included in certificate subjectAltName
+          forcedType: string
           helpLink: kafka.html
         ip:
           description: IP address to be included in certificate subjectAltName
           helpLink: kafka.html
         days_valid:
           description: Number of days the custom certificate is valid for
+          forcedType: int
           helpLink: kafka.html
       custom002: *external
       custom003: *external
