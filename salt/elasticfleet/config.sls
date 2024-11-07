@@ -81,14 +81,7 @@ eapackageupgrade:
     - template: jinja
 
 {%   if GLOBALS.role != "so-fleet" %}
-
-soresourcesrepoconfig:
-  git.config_set:
-    - name: safe.directory
-    - value: /nsm/securityonion-resources
-    - global: True
-    - user: socore
-    
+   
 {% if not GLOBALS.airgap %}
 soresourcesrepoclone:
   git.latest:
