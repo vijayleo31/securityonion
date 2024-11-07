@@ -11,15 +11,11 @@ hydra:
         issuer: https://URL_BASE/connect
         public: https://URL_BASE/connect
         admin: http://localhost:4445
-      login: https://URL_BASE/login
-      logout: https://URL_BASE/logout
-      identity_provider:
-        url: http://127.0.0.1:4434/admin
-        publicUrl: https://URL_BASE/auth
-          
+
     secrets:
       system: []
-
+    ttl:
+      access_token: 1h
     oidc:
       subject_identifiers:
         supported_types:
