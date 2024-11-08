@@ -6,10 +6,7 @@
 {% from 'allowed_states.map.jinja' import allowed_states %}
 {% if sls in allowed_states %}
 {%   from 'vars/globals.map.jinja' import GLOBALS %}
-{%   from 'strelka/map.jinja' import STRELKAMERGED %}
-{%   import_yaml 'manager/defaults.yaml' as MANAGERDEFAULTS %}
-{%   set MANAGERMERGED = salt['pillar.get']('manager', MANAGERDEFAULTS.manager, merge=true) %}
-{%   from 'strelka/map.jinja' import STRELKAMERGED %}
+{%   from 'manager/map.jinja' import MANAGERMERGED %}
 
 include:
   - salt.minion
