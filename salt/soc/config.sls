@@ -198,22 +198,12 @@ socsensoronirepos:
     - mode: 775
     - makedirs: True
 
-make-repo-dir-yara:
-  file.directory:
-    - name: /nsm/rules/custom-local-repos/local-yara
-    - user: socore
-    - group: socore
-    - makedirs: True
-    - recurse:
-      - user
-      - group
 
 create_custom_local_yara_repo_template:
   git.present:
     - name: /nsm/rules/custom-local-repos/local-yara
     - bare: False
     - force: True
-    - user: socore
 
 add_readme_custom_local_yara_repo_template:
   file.managed:
@@ -225,22 +215,12 @@ add_readme_custom_local_yara_repo_template:
     - context:
         repo_type: "yara"
 
-make-repo-dir-sigma:
-  file.directory:
-    - name: /nsm/rules/custom-local-repos/local-sigma
-    - user: socore
-    - group: socore
-    - makedirs: True
-    - recurse:
-      - user
-      - group
 
 create_custom_local_sigma_repo_template:
   git.present:
     - name: /nsm/rules/custom-local-repos/local-sigma
     - bare: False
     - force: True
-    - user: socore
 
 add_readme_custom_local_sigma_repo_template:
   file.managed:
@@ -251,6 +231,15 @@ add_readme_custom_local_sigma_repo_template:
     - template: jinja
     - context:
         repo_type: "sigma"
+
+socore_own_custom_repos:
+  file.directory:
+    - name: /nsm/rules/custom-local-repos/
+    - user: socore
+    - group: socore
+    - recurse:
+      - user
+      - group
   
 {% else %}
 
