@@ -198,6 +198,7 @@ socsensoronirepos:
     - mode: 775
     - makedirs: True
 
+
 create_custom_local_yara_repo_template:
   git.present:
     - name: /nsm/rules/custom-local-repos/local-yara
@@ -214,6 +215,7 @@ add_readme_custom_local_yara_repo_template:
     - context:
         repo_type: "yara"
 
+
 create_custom_local_sigma_repo_template:
   git.present:
     - name: /nsm/rules/custom-local-repos/local-sigma
@@ -229,6 +231,15 @@ add_readme_custom_local_sigma_repo_template:
     - template: jinja
     - context:
         repo_type: "sigma"
+
+socore_own_custom_repos:
+  file.directory:
+    - name: /nsm/rules/custom-local-repos/
+    - user: socore
+    - group: socore
+    - recurse:
+      - user
+      - group
   
 {% else %}
 
