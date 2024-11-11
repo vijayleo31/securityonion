@@ -701,11 +701,13 @@ up_to_2.4.90() {
 
   INSTALLEDVERSION=2.4.90
 }
+
 up_to_2.4.100() {
   # Elastic Update for this release, so download Elastic Agent files
   determine_elastic_agent_upgrade
   INSTALLEDVERSION=2.4.100
 }
+
 up_to_2.4.110() {
   echo "Nothing to do for 2.4.110"
 
@@ -713,9 +715,14 @@ up_to_2.4.110() {
 }
 
 up_to_2.4.120() {
-  echo "Nothing to do for 2.4.120"
-
   add_hydra_pillars
+
+  # this is needed for the new versionlock state
+  mkdir /opt/so/saltstack/local/pillar/versionlock
+  touch /opt/so/saltstack/local/pillar/versionlock/adv_versionlock.sls /opt/so/saltstack/local/pillar/versionlock/soc_versionlock.sls
+
+  # New Grid Integration added this release
+  rm -f /opt/so/state/eaintegrations.txt
 
   INSTALLEDVERSION=2.4.120
 }
@@ -949,7 +956,7 @@ update_airgap_repo() {
   echo "Syncing new updates to /nsm/repo"
   rsync -av $AGREPO/* /nsm/repo/
   echo "Creating repo"
-  dnf -y install yum-utils createrepo
+  dnf -y install yum-utils createrepo_c
   createrepo /nsm/repo
 }
 
