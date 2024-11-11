@@ -725,7 +725,7 @@ up_to_2.4.110() {
 
 up_to_2.4.120() {
   # this is needed for the new versionlock state
-  mkdir /opt/so/saltstack/local/pillar/versionlock
+  mkdir -p /opt/so/saltstack/local/pillar/versionlock
   touch /opt/so/saltstack/local/pillar/versionlock/adv_versionlock.sls /opt/so/saltstack/local/pillar/versionlock/soc_versionlock.sls
 
   # New Grid Integration added this release
