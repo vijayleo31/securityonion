@@ -111,15 +111,23 @@ elasticsearch:
                 match_mapping_type: string
           settings:
             index:
+              lifecycle:
+                name: so-case-logs
               mapping:
                 total_fields:
                   limit: 1500
               number_of_replicas: 0
+              auto_expand_replicas: 0-2
               number_of_shards: 1
               refresh_interval: 30s
               sort:
                 field: '@timestamp'
                 order: desc
+      policy:
+        phases:
+          hot:
+            actions: {}
+            min_age: 0ms
     so-common:
       close: 30
       delete: 365
@@ -258,15 +266,23 @@ elasticsearch:
                 match_mapping_type: string
           settings:
             index:
+              lifecycle:
+                name: so-detection-logs
               mapping:
                 total_fields:
                   limit: 1500
               number_of_replicas: 0
+              auto_expand_replicas: 0-2
               number_of_shards: 1
               refresh_interval: 30s
               sort:
                 field: '@timestamp'
                 order: desc
+      policy:
+        phases:
+          hot:
+            actions: {}
+            min_age: 0ms
     so-endgame:
       index_sorting: false
       index_template:
