@@ -523,7 +523,7 @@ post_to_2.4.120() {
   for idx in "so-detection" "so-detectionhistory" "so-case" "so-casehistory"; do
     JSON_STRING=$( jq -n \
                   --arg INDEX_NAME "$idx" \
-                  '{"settings": {"index.auto_expand_replicas":"0-2","index.lifecycle.name":($INDEX_NAME) + "-logs"}}'
+                  '{"settings": {"index.auto_expand_replicas":"0-2","index.lifecycle.name":($INDEX_NAME + "-logs")}}'
                 )
     echo "Updating $idx index settings"
     retry 5 15 "so-elasticsearch-query $idx/_settings -d "$JSON_STRING" -XPUT| grep '{\"acknowledged\":true}'"
