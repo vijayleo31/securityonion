@@ -177,10 +177,13 @@ socusersroles:
       - sls: manager.sync_es_users
 
 socclientsroles:
-  file.exists:
+  file.managed:
     - name: /opt/so/conf/soc/soc_clients_roles
-    - require:
-      - sls: manager.sync_es_users
+    - user: 939
+    - group: 939
+    - mode: 600
+    - allow_empty: true
+    - create: true
 
 socuploaddir:
   file.directory:
