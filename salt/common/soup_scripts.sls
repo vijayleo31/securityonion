@@ -11,7 +11,7 @@
 {%   else %}
 {%     set UPDATE_DIR='/tmp/sogh/securityonion' %}
 {%   endif %}
-{%   set SOVERSION = salt['file.read']('/etc/version').strip() %}
+{%   set SOVERSION = salt['file.read']('/etc/soversion').strip() %}
 
 remove_common_soup:
   file.absent:
