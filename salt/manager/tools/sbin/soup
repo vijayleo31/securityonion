@@ -715,6 +715,8 @@ up_to_2.4.110() {
 }
 
 up_to_2.4.120() {
+  add_hydra_pillars
+
   # this is needed for the new versionlock state
   mkdir /opt/so/saltstack/local/pillar/versionlock
   touch /opt/so/saltstack/local/pillar/versionlock/adv_versionlock.sls /opt/so/saltstack/local/pillar/versionlock/soc_versionlock.sls
@@ -723,6 +725,26 @@ up_to_2.4.120() {
   rm -f /opt/so/state/eaintegrations.txt
 
   INSTALLEDVERSION=2.4.120
+}
+
+add_hydra_pillars() {
+  mkdir -p /opt/so/saltstack/local/pillar/hydra
+  touch /opt/so/saltstack/local/pillar/hydra/soc_hydra.sls
+  chmod 660 /opt/so/saltstack/local/pillar/hydra/soc_hydra.sls
+  touch /opt/so/saltstack/local/pillar/hydra/adv_hydra.sls
+  HYDRAKEY=$(get_random_value)
+  HYDRASALT=$(get_random_value)
+	printf '%s\n'\
+		"hydra:"\
+		"  config:"\
+		"    secrets:"\
+		"      system:"\
+		"        - '$HYDRAKEY'"\
+    "    oidc:"\
+    "        subject_identifiers:"\
+    "            pairwise:"\
+    "                salt: '$HYDRASALT'"\
+		"" > /opt/so/saltstack/local/pillar/hydra/soc_hydra.sls
 }
 
 add_detection_test_pillars() {
