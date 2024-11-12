@@ -947,7 +947,7 @@ update_elasticsearch_index_settings() {
     if [ $exists -eq 200 ]; then
       echo "$idx index found..."
       echo "Updating $idx index settings"
-      so-elasticsearch-query $idx/_settings -d "$JSON_STRING" -XPUT
+      curl -K /opt/so/conf/elasticsearch/curl.config -s -k -L -H "Content-Type: application/json" "https://localhost:9200/$idx/_settings" -d "$JSON_STRING" -XPUT
       echo -e "\n"
     else
       echo -e "Skipping $idx... index does not exist\n"
