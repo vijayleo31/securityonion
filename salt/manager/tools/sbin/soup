@@ -941,7 +941,14 @@ update_airgap_repo() {
 update_elasticsearch_index_settings() {
   # Update managed indices to reflect latest index template
   for idx in "so-detection" "so-detectionhistory" "so-case" "so-casehistory"; do
-    JSON_STRING=$( jq -n --arg INDEX_NAME "$idx" '{"settings": {"index.auto_expand_replicas":"0-2","index.lifecycle.name":($INDEX_NAME + "-logs")}}')
+    ilm_name=$idx
+    if [ "$idx" = "so-detectionhistory" ]; then
+      ilm_name="so-detection"
+    elif [ "$idx" = "so-casehistory" ]; then
+      ilm_name="so-case"
+    fi
+    JSON_STRING=$( jq -n --arg ILM_NAME "$ilm_name" '{"settings": {"index.auto_expand_replicas":"0-2","index.lifecycle.name":($ILM_NAME + "-logs")}}')
+
     echo "Checking if index \"$idx\" exists"
     exists=$(curl -K /opt/so/conf/elasticsearch/curl.config -s -o /dev/null -w "%{http_code}" -k -L -H "Content-Type: application/json" "https://localhost:9200/$idx")
     if [ $exists -eq 200 ]; then
