@@ -520,16 +520,7 @@ post_to_2.4.110() {
 }
 
 post_to_2.4.120() {
-  for idx in "so-detection" "so-detectionhistory" "so-case" "so-casehistory"; do
-    JSON_STRING=$( jq -n \
-                  --arg INDEX_NAME "$idx" \
-                  '{"settings": {"index.auto_expand_replicas":"0-2","index.lifecycle.name":($INDEX_NAME + "-logs")}}'
-                )
-    echo "Updating $idx index settings"
-    retry 5 15 "so-elasticsearch-query $idx/_settings -d "$JSON_STRING" -XPUT| grep '{\"acknowledged\":true}'"
-    echo ""
-  done
-
+  update_elasticsearch_index_settings
   POSTVERSION=2.4.120
 }
 
@@ -945,6 +936,23 @@ update_airgap_repo() {
   echo "Creating repo"
   dnf -y install yum-utils createrepo_c
   createrepo /nsm/repo
+}
+
+update_elasticsearch_index_settings() {
+  # Update managed indices to reflect latest index template
+  for idx in "so-detection" "so-detectionhistory" "so-case" "so-casehistory"; do
+    JSON_STRING=$( jq -n --arg INDEX_NAME "$idx" '{"settings": {"index.auto_expand_replicas":"0-2","index.lifecycle.name":($INDEX_NAME + "-logs")}}')
+    echo "Checking if index \"$idx\" exists"
+    exists=$(curl -K /opt/so/conf/elasticsearch/curl.config -s -o /dev/null -w "%{http_code}" -k -L -H "Content-Type: application/json" "https://localhost:9200/$idx")
+    if [ $exists -eq 200 ]; then
+      echo "$idx index found..."
+      echo "Updating $idx index settings"
+      so-elasticsearch-query $idx/_settings -d "$JSON_STRING" -XPUT
+      echo -e "\n"
+    else
+      echo -e "Skipping $idx... index does not exist\n"
+    fi
+  done
 }
 
 update_salt_mine() {
