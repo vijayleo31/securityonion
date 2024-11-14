@@ -4420,29 +4420,30 @@ install_centos_onedir_deps() {
 }
 
 install_centos_onedir() {
+    yum clean metadata
+    yum makecache
 
     __PACKAGES=""
 
     if [ "$_INSTALL_CLOUD" -eq $BS_TRUE ];then
-        __PACKAGES="${__PACKAGES} salt-cloud"
+        __PACKAGES="${__PACKAGES} salt-cloud-${STABLE_REV}"
     fi
     if [ "$_INSTALL_MASTER" -eq $BS_TRUE ];then
-        __PACKAGES="${__PACKAGES} salt-master"
+        __PACKAGES="${__PACKAGES} salt-master-${STABLE_REV}"
     fi
     if [ "$_INSTALL_MINION" -eq $BS_TRUE ]; then
-        __PACKAGES="${__PACKAGES} salt-minion"
+        __PACKAGES="${__PACKAGES} salt-minion-${STABLE_REV}"
     fi
     if [ "$_INSTALL_SYNDIC" -eq $BS_TRUE ];then
-        __PACKAGES="${__PACKAGES} salt-syndic"
+        __PACKAGES="${__PACKAGES} salt-syndic-${STABLE_REV}"
     fi
 
     if [ "$_INSTALL_SALT_API" -eq $BS_TRUE ]; then
-        __PACKAGES="${__PACKAGES} salt-api"
+        __PACKAGES="${__PACKAGES} salt-api-${STABLE_REV}"
     fi
 
     # shellcheck disable=SC2086
     __yum_install_noinput ${__PACKAGES} || return 1
-
     return 0
 }
 

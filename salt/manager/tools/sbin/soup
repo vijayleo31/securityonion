@@ -1049,12 +1049,12 @@ upgrade_salt() {
     # if oracle run with -r to ignore repos set by bootstrap
     if [[ $OS == 'oracle' ]]; then
       run_check_net_err \
-      "sh $UPDATE_DIR/salt/salt/scripts/bootstrap-salt.sh -X -r -F -M -x python3 stable \"$NEWSALTVERSION\"" \
+      "sh $UPDATE_DIR/salt/salt/scripts/bootstrap-salt.sh -X -r -F -M stable \"$NEWSALTVERSION\"" \
       "Could not update salt, please check $SOUP_LOG for details."
     # if another rhel family variant we want to run without -r to allow the bootstrap script to manage repos
     else
       run_check_net_err \
-      "sh $UPDATE_DIR/salt/salt/scripts/bootstrap-salt.sh -X -F -M -x python3 stable \"$NEWSALTVERSION\"" \
+      "sh $UPDATE_DIR/salt/salt/scripts/bootstrap-salt.sh -X -F -M stable \"$NEWSALTVERSION\"" \
       "Could not update salt, please check $SOUP_LOG for details."
     fi
     set -e
@@ -1074,7 +1074,7 @@ upgrade_salt() {
     echo ""
     set +e
     run_check_net_err \
-    "sh $UPDATE_DIR/salt/salt/scripts/bootstrap-salt.sh -X -F -M -x python3 stable \"$NEWSALTVERSION\"" \
+    "sh $UPDATE_DIR/salt/salt/scripts/bootstrap-salt.sh -X -F -M stable \"$NEWSALTVERSION\"" \
     "Could not update salt, please check $SOUP_LOG for details."
     set -e
     echo "Applying apt hold for Salt."

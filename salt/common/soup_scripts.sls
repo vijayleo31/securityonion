@@ -114,7 +114,7 @@ copy_so-repo-sync_sbin:
 {%     if grains.os_family == 'Debian' %}
 {%       set saltrepofile = '/etc/apt/sources.list.d/salt.list' %}
 {%     endif %}
-remove_saltproject_io_repo:
+remove_saltproject_io_repo_manager:
   file.absent:
     - name: {{ saltrepofile }}
 {%   endif %}
