@@ -69,6 +69,7 @@ zeek:
         - zeek-plugin-profinet
         - zeek-spicy-wireguard
         - zeek-spicy-stun
+        - http2
       load-sigs:
         - frameworks/signatures/detect-windows-shells
       redef:
