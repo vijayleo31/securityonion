@@ -520,7 +520,7 @@ post_to_2.4.110() {
 }
 
 post_to_2.4.120() {
-  echo "Nothing to apply"
+  update_elasticsearch_index_settings
   POSTVERSION=2.4.120
 }
 
@@ -718,7 +718,7 @@ up_to_2.4.120() {
   add_hydra_pillars
 
   # this is needed for the new versionlock state
-  mkdir /opt/so/saltstack/local/pillar/versionlock
+  mkdir -p /opt/so/saltstack/local/pillar/versionlock
   touch /opt/so/saltstack/local/pillar/versionlock/adv_versionlock.sls /opt/so/saltstack/local/pillar/versionlock/soc_versionlock.sls
 
   # New Grid Integration added this release
@@ -958,6 +958,30 @@ update_airgap_repo() {
   echo "Creating repo"
   dnf -y install yum-utils createrepo_c
   createrepo /nsm/repo
+}
+
+update_elasticsearch_index_settings() {
+  # Update managed indices to reflect latest index template
+  for idx in "so-detection" "so-detectionhistory" "so-case" "so-casehistory"; do
+    ilm_name=$idx
+    if [ "$idx" = "so-detectionhistory" ]; then
+      ilm_name="so-detection"
+    elif [ "$idx" = "so-casehistory" ]; then
+      ilm_name="so-case"
+    fi
+    JSON_STRING=$( jq -n --arg ILM_NAME "$ilm_name" '{"settings": {"index.auto_expand_replicas":"0-2","index.lifecycle.name":($ILM_NAME + "-logs")}}')
+
+    echo "Checking if index \"$idx\" exists"
+    exists=$(curl -K /opt/so/conf/elasticsearch/curl.config -s -o /dev/null -w "%{http_code}" -k -L -H "Content-Type: application/json" "https://localhost:9200/$idx")
+    if [ $exists -eq 200 ]; then
+      echo "$idx index found..."
+      echo "Updating $idx index settings"
+      curl -K /opt/so/conf/elasticsearch/curl.config -s -k -L -H "Content-Type: application/json" "https://localhost:9200/$idx/_settings" -d "$JSON_STRING" -XPUT
+      echo -e "\n"
+    else
+      echo -e "Skipping $idx... index does not exist\n"
+    fi
+  done
 }
 
 update_salt_mine() {
