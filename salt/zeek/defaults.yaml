@@ -26,7 +26,6 @@ zeek:
     local:
       load:
         - misc/loaded-scripts
-        - tuning/defaults
         - misc/capture-loss
         - frameworks/software/vulnerable
         - frameworks/software/version-changes
@@ -70,6 +69,7 @@ zeek:
         - zeek-plugin-profinet
         - zeek-spicy-wireguard
         - zeek-spicy-stun
+        - http2
       load-sigs:
         - frameworks/signatures/detect-windows-shells
       redef:
