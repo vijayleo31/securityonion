@@ -1,5 +1,5 @@
 hydra:
-  enabled: True
+  enabled: False
   config:
     serve:
       public:
