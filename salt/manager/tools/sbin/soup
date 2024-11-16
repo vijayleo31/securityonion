@@ -736,7 +736,6 @@ add_hydra_pillars() {
   HYDRASALT=$(get_random_value)
 	printf '%s\n'\
 		"hydra:"\
-		"  enabled: ${HYDRAENABLED:-False}"\
 		"  config:"\
 		"    secrets:"\
 		"      system:"\
