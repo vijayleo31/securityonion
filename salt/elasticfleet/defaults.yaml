@@ -8,6 +8,8 @@ elasticfleet:
       endpoints_enrollment: ''
       es_token: ''
       grid_enrollment: ''
+    defend_filters:
+      enable_auto_configuration: False
   logging:
     zeek:
       excluded:
@@ -36,6 +38,7 @@ elasticfleet:
     - aws
     - azure
     - barracuda
+    - barracuda_cloudgen_firewall
     - carbonblack_edr
     - cef
     - checkpoint
@@ -45,6 +48,7 @@ elasticfleet:
     - cisco_ios
     - cisco_ise
     - cisco_meraki
+    - cisco_secure_email_gateway
     - cisco_umbrella
     - citrix_adc
     - citrix_waf
@@ -66,6 +70,7 @@ elasticfleet:
     - http_endpoint
     - httpjson
     - iis
+    - imperva_cloud_waf
     - journald
     - juniper
     - juniper_srx
@@ -104,8 +109,11 @@ elasticfleet:
     - ti_cybersixgill
     - ti_misp
     - ti_otx
+    - ti_rapid7_threat_command
     - ti_recordedfuture
     - ti_threatq
+    - trendmicro
+    - trend_micro_vision_one
     - udp
     - vsphere
     - windows
