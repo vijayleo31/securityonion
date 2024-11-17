@@ -1380,6 +1380,10 @@ main() {
 
     echo "Running a highstate to complete the Security Onion upgrade on this manager. This could take several minutes."
     (wait_for_salt_minion "$MINIONID" "5" '/dev/stdout' || fail "Salt minion was not running or ready.") 2>&1 | tee -a "$SOUP_LOG"
+
+    # Stop long-running scripts to allow potentially updated scripts to load on the next execution.
+    killall salt-relay.sh
+
     highstate
     postupgrade_changes
     [[ $is_airgap -eq 0 ]] && unmount_update
