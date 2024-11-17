@@ -1,7 +1,13 @@
 elasticsearch:
   enabled:
-    description: You can enable or disable Elasticsearch.
+    description: Enables or disables the Elasticsearch process. This process provides the log event storage system. WARNING - Disabling this process is unsupported.
+    advanced: True
     helpLink: elasticsearch.html
+  version:
+    description: "This specifies the version of the following containers: so-elastic-fleet-package-registry, so-elastic-agent, so-elastic-fleet, so-kibana, so-logstash and so-elasticsearch. Modifying this value in the Elasticsearch defaults.yaml will result in catastrophic grid failure."
+    readonly: True
+    global: True
+    advanced: True
   esheap:
     description: Specify the memory heap size in (m)egabytes for Elasticsearch.
     helpLink: elasticsearch.html
@@ -376,6 +382,7 @@ elasticsearch:
     so-logs-azure_x_signinlogs: *indexSettings
     so-logs-azure_x_springcloudlogs: *indexSettings
     so-logs-barracuda_x_waf: *indexSettings
+    so-logs-barracuda_cloudgen_firewall_x_log: *indexSettings
     so-logs-cef_x_log: *indexSettings
     so-logs-cisco_asa_x_log: *indexSettings
     so-logs-cisco_ftd_x_log: *indexSettings
@@ -430,6 +437,7 @@ elasticsearch:
     so-logs-httpjson_x_generic: *indexSettings
     so-logs-iis_x_access: *indexSettings
     so-logs-iis_x_error: *indexSettings
+    so-logs-imperva_cloud_waf_x_event: *indexSettings
     so-logs-juniper_x_junos: *indexSettings
     so-logs-juniper_x_netscreen: *indexSettings
     so-logs-juniper_x_srx: *indexSettings
@@ -466,6 +474,13 @@ elasticsearch:
     so-logs-sonicwall_firewall_x_log: *indexSettings
     so-logs-snort_x_log: *indexSettings
     so-logs-symantec_endpoint_x_log: *indexSettings
+    so-logs-tenable_io_x_asset: *indexSettings
+    so-logs-tenable_io_x_plugin: *indexSettings
+    so-logs-tenable_io_x_scan: *indexSettings
+    so-logs-tenable_io_x_vulnerability: *indexSettings
+    so-logs-tenable_sc_x_asset: *indexSettings
+    so-logs-tenable_sc_x_plugin: *indexSettings
+    so-logs-tenable_sc_x_vulnerability: *indexSettings
     so-logs-ti_abusech_x_malware: *indexSettings
     so-logs-ti_abusech_x_malwarebazaar: *indexSettings
     so-logs-ti_abusech_x_threatfox: *indexSettings
@@ -521,6 +536,7 @@ elasticsearch:
     so-endgame: *indexSettings
     so-idh: *indexSettings
     so-suricata: *indexSettings
+    so-suricata_x_alerts: *indexSettings
     so-import: *indexSettings
     so-kratos: *indexSettings
     so-kismet: *indexSettings
@@ -529,6 +545,58 @@ elasticsearch:
     so-strelka: *indexSettings
     so-syslog: *indexSettings
     so-zeek: *indexSettings
+    so-metrics-fleet_server_x_agent_status: &fleetMetricsSettings
+      index_sorting:
+        description: Sorts the index by event time, at the cost of additional processing resource consumption.
+        advanced: True
+        readonly: True
+        helpLink: elasticsearch.html
+      index_template:
+        ignore_missing_component_templates:
+          description: Ignore component templates if they aren't in Elasticsearch.
+          advanced: True
+          readonly: True
+          helpLink: elasticsearch.html
+        index_patterns:
+          description: Patterns for matching multiple indices or tables.
+          advanced: True
+          readonly: True
+          helpLink: elasticsearch.html
+        template:
+          settings:
+            index:
+              mode:
+                description: Type of mode used for this index. Time series indices can be used for metrics to reduce necessary storage.
+                advanced: True
+                readonly: True
+                helpLink: elasticsearch.html
+              number_of_replicas:
+                description: Number of replicas required for this index. Multiple replicas protects against data loss, but also increases storage costs.
+                advanced: True
+                readonly: True
+                helpLink: elasticsearch.html
+        composed_of:
+          description: The index template is composed of these component templates.
+          advanced: True
+          readonly: True
+          helpLink: elasticsearch.html
+        priority:
+          description: The priority of the index template.
+          advanced: True
+          readonly: True
+          helpLink: elasticsearch.html
+        data_stream:
+          hidden:
+            description: Hide the data stream.
+            advanced: True
+            readonly: True
+            helpLink: elasticsearch.html
+          allow_custom_routing:
+            description: Allow custom routing for the data stream.
+            advanced: True
+            readonly: True
+            helpLink: elasticsearch.html
+    so-metrics-fleet_server_x_agent_versions: *fleetMetricsSettings
   so_roles:
     so-manager: &soroleSettings
       config:

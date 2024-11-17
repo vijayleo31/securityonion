@@ -17,17 +17,21 @@ include:
   - elasticfleet.sostatus
   - ssl
 
+{% if grains.role not in ['so-fleet'] %}
 # Wait for Elasticsearch to be ready - no reason to try running Elastic Fleet server if ES is not ready
 wait_for_elasticsearch_elasticfleet:
   cmd.run:
     - name: so-elasticsearch-wait
+{% endif %}
 
 # If enabled, automatically update Fleet Logstash Outputs
 {% if ELASTICFLEETMERGED.config.server.enable_auto_configuration and grains.role not in ['so-import', 'so-eval', 'so-fleet'] %}
 so-elastic-fleet-auto-configure-logstash-outputs:
   cmd.run:
     - name: /usr/sbin/so-elastic-fleet-outputs-update
-    - retry: True
+    - retry:
+        attempts: 4
+        interval: 30
 {% endif %}
 
 # If enabled, automatically update Fleet Server URLs & ES Connection
@@ -35,7 +39,9 @@ so-elastic-fleet-auto-configure-logstash-outputs:
 so-elastic-fleet-auto-configure-server-urls:
   cmd.run:
     - name: /usr/sbin/so-elastic-fleet-urls-update
-    - retry: True
+    - retry:
+        attempts: 4
+        interval: 30
 {% endif %}
 
 # Automatically update Fleet Server Elasticsearch URLs & Agent Artifact URLs
@@ -43,12 +49,16 @@ so-elastic-fleet-auto-configure-server-urls:
 so-elastic-fleet-auto-configure-elasticsearch-urls:
   cmd.run:
     - name: /usr/sbin/so-elastic-fleet-es-url-update
-    - retry: True
+    - retry:
+        attempts: 4
+        interval: 30
 
 so-elastic-fleet-auto-configure-artifact-urls:
   cmd.run:
     - name: /usr/sbin/so-elastic-fleet-artifacts-url-update
-    - retry: True 
+    - retry:
+        attempts: 4
+        interval: 30
 
 {% endif %}
 
@@ -134,6 +144,19 @@ so-elastic-agent-grid-upgrade:
   cmd.run:
     - name: /usr/sbin/so-elastic-agent-grid-upgrade
     - retry: True
+
+so-elastic-fleet-integration-upgrade:
+  cmd.run:
+    - name: /usr/sbin/so-elastic-fleet-integration-upgrade
+
+{%   if ELASTICFLEETMERGED.config.defend_filters.enable_auto_configuration %}
+so-elastic-defend-manage-filters-file-watch:
+  cmd.run:
+    - name: python3 /sbin/so-elastic-defend-manage-filters.py -c /opt/so/conf/elasticsearch/curl.config -d /opt/so/conf/elastic-fleet/defend-exclusions/disabled-filters.yaml -i /nsm/securityonion-resources/event_filters/ -i /opt/so/conf/elastic-fleet/defend-exclusions/rulesets/custom-filters/ &>> /opt/so/log/elasticfleet/elastic-defend-manage-filters.log
+    - onchanges:
+      - file: elasticdefendcustom
+      - file: elasticdefenddisabled
+{%    endif %}
 {%  endif %}
 
 delete_so-elastic-fleet_so-status.disabled:

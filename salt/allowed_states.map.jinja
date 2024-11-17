@@ -103,7 +103,8 @@
           'utility',
           'schedule',
           'docker_clean',
-          'stig'
+          'stig',
+          'kafka'
           ],
       'so-managersearch': [
           'salt.master',
@@ -125,7 +126,8 @@
           'utility',
           'schedule',
           'docker_clean',
-          'stig'
+          'stig',
+          'kafka'
           ],
       'so-searchnode': [
           'ssl',
@@ -134,7 +136,9 @@
           'firewall',
           'schedule',
           'docker_clean',
-          'stig'
+          'stig',
+          'kafka.ca',
+          'kafka.ssl'
           ],
       'so-standalone': [
           'salt.master',
@@ -159,7 +163,8 @@
           'schedule',
           'tcpreplay',
           'docker_clean',
-          'stig'
+          'stig',
+          'kafka'
           ],
       'so-sensor': [
           'ssl',
@@ -190,12 +195,15 @@
           'telegraf',
           'firewall',
           'schedule',
-          'docker_clean'
+          'docker_clean',
+          'kafka',
+          'stig'
           ],
       'so-desktop': [
           'ssl',
           'docker_clean',
-          'telegraf'
+          'telegraf',
+          'stig'
           ],
   }, grain='role') %}
 

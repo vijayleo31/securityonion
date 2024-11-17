@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Copyright Security Onion Solutions LLC and/or licensed to Security Onion Solutions LLC under one
-# or more contributor license agreements. Licensed under the Elastic License 2.0 as shown at 
+# or more contributor license agreements. Licensed under the Elastic License 2.0 as shown at
 # https://securityonion.net/license; you may not use this file except in compliance with the
 # Elastic License 2.0.
 
@@ -19,6 +19,9 @@ SOUP_LOG=/root/soup.log
 WHATWOULDYOUSAYYAHDOHERE=soup
 whiptail_title='Security Onion UPdater'
 NOTIFYCUSTOMELASTICCONFIG=false
+# used to display messages to the user at the end of soup
+declare -a FINAL_MESSAGE_QUEUE=()
+
 
 check_err() {
   local exit_code=$1
@@ -27,7 +30,7 @@ check_err() {
   [[ $ERR_HANDLED == true ]] && exit $exit_code
 
   if [[ $exit_code -ne 0 ]]; then
-  
+
     set +e
     systemctl_func "start" "$cron_service_name"
     systemctl_func "start" "salt-master"
@@ -105,7 +108,7 @@ add_common() {
 }
 
 airgap_mounted() {
-  # Let's see if the ISO is already mounted. 
+  # Let's see if the ISO is already mounted.
   if [[ -f /tmp/soagupdate/SecurityOnion/VERSION ]]; then
     echo "The ISO is already mounted"
   else
@@ -113,8 +116,8 @@ airgap_mounted() {
       echo "This is airgap. Ask for a location."
       echo ""
       cat << EOF
-In order for soup to proceed, the path to the downloaded Security Onion ISO file, or the path to the CD-ROM or equivalent device containing the ISO media must be provided. 
-For example, if you have copied the new Security Onion ISO file to your home directory, then the path might look like /home/myuser/securityonion-2.x.y.iso. 
+In order for soup to proceed, the path to the downloaded Security Onion ISO file, or the path to the CD-ROM or equivalent device containing the ISO media must be provided.
+For example, if you have copied the new Security Onion ISO file to your home directory, then the path might look like /home/myuser/securityonion-2.x.y.iso.
 Or, if you have burned the new ISO onto an optical disk then the path might look like /dev/cdrom.
 
 EOF
@@ -131,7 +134,7 @@ EOF
         exit 0
       else
         echo "ISO has been mounted!"
-      fi  
+      fi
     elif [[ -f $ISOLOC/SecurityOnion/VERSION ]]; then
       ln -s $ISOLOC /tmp/soagupdate
       echo "Found the update content"
@@ -146,7 +149,7 @@ EOF
         echo "Device has been mounted!"
       fi
     else
-      echo "Could not find Security Onion ISO content at ${ISOLOC}" 
+      echo "Could not find Security Onion ISO content at ${ISOLOC}"
       echo "Ensure the path you entered is correct, and that you verify the ISO that you downloaded."
       exit 0
     fi
@@ -192,7 +195,7 @@ check_airgap() {
       UPDATE_DIR=/tmp/soagupdate/SecurityOnion
       AGDOCKER=/tmp/soagupdate/docker
       AGREPO=/tmp/soagupdate/minimal/Packages
-  else 
+  else
       is_airgap=1
   fi
 }
@@ -305,6 +308,21 @@ clone_to_tmp() {
   fi
 }
 
+disable_logstash_heavynodes() {
+  c=0
+  printf "\nChecking for heavynodes and disabling Logstash if they exist\n"
+  for file in /opt/so/saltstack/local/pillar/minions/*.sls; do
+    if [[ "$file" =~ "_heavynode.sls" && ! "$file" =~ "/opt/so/saltstack/local/pillar/minions/adv_" ]]; then
+      if [ "$c" -eq 0 ]; then
+        c=$((c + 1))
+        FINAL_MESSAGE_QUEUE+=("Logstash has been disabled on all heavynodes. It can be re-enabled via Grid Configuration in SOC.")
+      fi
+      echo "Disabling Logstash for: $file"
+      so-yaml.py replace "$file" logstash.enabled False
+    fi
+  done
+}
+
 enable_highstate() {
     echo "Enabling highstate."
     salt-call state.enable highstate -l info --local
@@ -344,6 +362,29 @@ masterunlock() {
   mv -v $BACKUPTOPFILE $TOPFILE
 }
 
+phases_pillar_2_4_80() {
+  echo "Checking if pillar value: elasticsearch.index_settings.global_overrides.index_template.phases exists"
+  set +e
+  PHASES=$(so-yaml.py get /opt/so/saltstack/local/pillar/elasticsearch/soc_elasticsearch.sls elasticsearch.index_settings.global_overrides.index_template.phases)
+  case $? in
+    0)
+    so-yaml.py remove /opt/so/saltstack/local/pillar/elasticsearch/soc_elasticsearch.sls elasticsearch.index_settings.global_overrides.index_template.phases
+    read -r -d '' msg <<- EOF
+Found elasticsearch.index_settings.global_overrides.index_template.phases was set to:
+${PHASES}
+
+Removed unused pillar value: elasticsearch.index_settings.global_overrides.index_template.phases
+To set policies, navigate to the SOC Grid Configuration UI at elasticsearch.index_settings.global_overrides.policy.phases
+A backup of all pillar files was saved to /nsm/backup/
+EOF
+    FINAL_MESSAGE_QUEUE+=("$msg")
+    ;;
+    2) echo "Pillar elasticsearch.index_settings.global_overrides.index_template.phases does not exist. No action taken." ;;
+    *) echo "so-yaml.py returned something other than 0 or 2 exit code" ;; # we shouldn't see this
+  esac
+  set -e
+}
+
 preupgrade_changes() {
     # This function is to add any new pillar items if needed.
     echo "Checking to see if changes are needed."
@@ -358,23 +399,31 @@ preupgrade_changes() {
     [[ "$INSTALLEDVERSION" == 2.4.40 ]] && up_to_2.4.50
     [[ "$INSTALLEDVERSION" == 2.4.50 ]] && up_to_2.4.60
     [[ "$INSTALLEDVERSION" == 2.4.60 ]] && up_to_2.4.70
+    [[ "$INSTALLEDVERSION" == 2.4.70 ]] && up_to_2.4.80
+    [[ "$INSTALLEDVERSION" == 2.4.80 ]] && up_to_2.4.90
+    [[ "$INSTALLEDVERSION" == 2.4.90 ]] && up_to_2.4.100
+    [[ "$INSTALLEDVERSION" == 2.4.100 ]] && up_to_2.4.110
     true
 }
 
 postupgrade_changes() {
     # This function is to add any new pillar items if needed.
     echo "Running post upgrade processes."
-    
+
     [[ "$POSTVERSION" == 2.4.2 ]] && post_to_2.4.3
     [[ "$POSTVERSION" == 2.4.3 ]] && post_to_2.4.4
-    [[ "$POSTVERSION" == 2.4.4 ]] && post_to_2.4.5 
-    [[ "$POSTVERSION" == 2.4.5 ]] && post_to_2.4.10 
+    [[ "$POSTVERSION" == 2.4.4 ]] && post_to_2.4.5
+    [[ "$POSTVERSION" == 2.4.5 ]] && post_to_2.4.10
     [[ "$POSTVERSION" == 2.4.10 ]] && post_to_2.4.20
     [[ "$POSTVERSION" == 2.4.20 ]] && post_to_2.4.30
     [[ "$POSTVERSION" == 2.4.30 ]] && post_to_2.4.40
     [[ "$POSTVERSION"  == 2.4.40 ]] && post_to_2.4.50
     [[ "$POSTVERSION"  == 2.4.50 ]] && post_to_2.4.60
     [[ "$POSTVERSION"  == 2.4.60 ]] && post_to_2.4.70
+    [[ "$POSTVERSION"  == 2.4.70 ]] && post_to_2.4.80
+    [[ "$POSTVERSION"  == 2.4.80 ]] && post_to_2.4.90
+    [[ "$POSTVERSION"  == 2.4.90 ]] && post_to_2.4.100
+    [[ "$POSTVERSION"  == 2.4.100 ]] && post_to_2.4.110
     true
 }
 
@@ -406,8 +455,6 @@ post_to_2.4.20() {
 }
 
 post_to_2.4.30() {
-  echo "Regenerating Elastic Agent Installers"
-  /sbin/so-elastic-agent-gen-installers
   # there is an occasional error with this state: pki_public_ca_crt: TypeError: list indices must be integers or slices, not str
   set +e
   salt-call state.apply ca queue=True
@@ -432,8 +479,7 @@ post_to_2.4.50() {
 }
 
 post_to_2.4.60() {
-  echo "Regenerating Elastic Agent Installers..."
-  so-elastic-agent-gen-installers
+  echo "Nothing to apply"
   POSTVERSION=2.4.60
 }
 
@@ -446,6 +492,28 @@ post_to_2.4.70() {
     fi
   done
   POSTVERSION=2.4.70
+}
+
+post_to_2.4.80() {
+  echo -e "\nChecking if update to Elastic Fleet output policy is required\n"
+  so-kafka-fleet-output-policy
+  POSTVERSION=2.4.80
+}
+
+post_to_2.4.90() {
+  disable_logstash_heavynodes
+  POSTVERSION=2.4.90
+}
+
+post_to_2.4.100() {
+  echo "Regenerating Elastic Agent Installers"
+  /sbin/so-elastic-agent-gen-installers
+  POSTVERSION=2.4.100
+}
+
+post_to_2.4.110() {
+  echo "Nothing to apply"
+  POSTVERSION=2.4.110
 }
 
 repo_sync() {
@@ -464,11 +532,17 @@ stop_salt_master() {
     pkill -9 -ef "/usr/bin/python3 /bin/salt" >> $SOUP_LOG 2>&1
 
     echo ""
-    echo "Storing salt-master pid."
+    echo "Storing salt-master PID."
     MASTERPID=$(pgrep -f '/opt/saltstack/salt/bin/python3.10 /usr/bin/salt-master MainProcess')
-    echo "Found salt-master PID $MASTERPID"
-    systemctl_func "stop" "salt-master"
-    timeout 30 tail --pid=$MASTERPID -f /dev/null || echo "salt-master still running at $(date +"%T.%6N") after waiting 30s. We cannot kill due to systemd restart option."
+    if [ ! -z "$MASTERPID" ]; then
+      echo "Found salt-master PID $MASTERPID"
+      systemctl_func "stop" "salt-master"
+      if ps -p "$MASTERPID" > /dev/null 2>&1; then
+        timeout 30 tail --pid=$MASTERPID -f /dev/null || echo "salt-master still running at $(date +"%T.%6N") after waiting 30s. We cannot kill due to systemd restart option."
+      fi
+    else
+      echo "The salt-master PID was not found. The process '/usr/bin/salt-master MainProcess' is not running."
+    fi
     set -e
 }
 
@@ -513,29 +587,18 @@ up_to_2.4.5() {
 
 up_to_2.4.10() {
   echo "Nothing to do for 2.4.10"
-  
+
   INSTALLEDVERSION=2.4.10
 }
 
 up_to_2.4.20() {
   echo "Nothing to do for 2.4.20"
-  
+
   INSTALLEDVERSION=2.4.20
 }
 
 up_to_2.4.30() {
-
-  # Remove older defend integration json & installed integration
-  rm -f /opt/so/conf/elastic-fleet/integrations/endpoints-initial/elastic-defend-endpoints.json
-
-  . $UPDATE_DIR/salt/elasticfleet/tools/sbin/so-elastic-fleet-common
-  elastic_fleet_integration_remove endpoints-initial elastic-defend-endpoints
-
-  rm -f /opt/so/state/eaintegrations.txt
-
-  # Elastic Update for this release, so download Elastic Agent files
-  determine_elastic_agent_upgrade
-  rm -f /opt/so/state/estemplates*.txt
+  echo "Nothing to do for 2.4.30"
 
   INSTALLEDVERSION=2.4.30
 }
@@ -572,7 +635,7 @@ up_to_2.4.50() {
   mkdir /opt/so/rules/nids/suri
   chown socore:socore /opt/so/rules/nids/suri
   mv -v /opt/so/rules/nids/*.rules /opt/so/rules/nids/suri/.
-  
+
   echo "Adding /nsm/elastic-fleet/artifacts to file_roots in /etc/salt/master using so-yaml"
   so-yaml.py append /etc/salt/master file_roots.base  /nsm/elastic-fleet/artifacts
 
@@ -592,7 +655,53 @@ up_to_2.4.70() {
   suricata_idstools_migration
   toggle_telemetry
   add_detection_test_pillars
+
   INSTALLEDVERSION=2.4.70
+}
+
+up_to_2.4.80() {
+  phases_pillar_2_4_80
+  # Kafka configuration changes
+
+  # Global pipeline changes to REDIS or KAFKA
+  echo "Removing global.pipeline pillar configuration"
+  sed -i '/pipeline:/d' /opt/so/saltstack/local/pillar/global/soc_global.sls
+  # Kafka pillars
+  mkdir -p /opt/so/saltstack/local/pillar/kafka
+  touch /opt/so/saltstack/local/pillar/kafka/soc_kafka.sls
+  touch /opt/so/saltstack/local/pillar/kafka/adv_kafka.sls
+  echo 'kafka: ' > /opt/so/saltstack/local/pillar/kafka/soc_kafka.sls
+  kafka_cluster_id=$(get_random_value 22)
+  echo '  cluster_id: '$kafka_cluster_id >> /opt/so/saltstack/local/pillar/kafka/soc_kafka.sls
+  kafkapass=$(get_random_value)
+  echo '  password: '$kafkapass >> /opt/so/saltstack/local/pillar/kafka/soc_kafka.sls
+
+  INSTALLEDVERSION=2.4.80
+}
+
+up_to_2.4.90() {
+  kafkatrust=$(get_random_value)
+  # rearranging the kafka pillar to reduce clutter in SOC UI
+  kafkasavedpass=$(so-yaml.py get /opt/so/saltstack/local/pillar/kafka/soc_kafka.sls kafka.password)
+  kafkatrimpass=$(echo "$kafkasavedpass" | sed -n '1 p' )
+  echo "Making changes to the Kafka pillar layout"
+  so-yaml.py remove /opt/so/saltstack/local/pillar/kafka/soc_kafka.sls kafka.password
+  so-yaml.py add /opt/so/saltstack/local/pillar/kafka/soc_kafka.sls kafka.config.password "$kafkatrimpass"
+  so-yaml.py add /opt/so/saltstack/local/pillar/kafka/soc_kafka.sls kafka.config.trustpass "$kafkatrust"
+  echo "If the Detection index exists, update the refresh_interval"
+  so-elasticsearch-query so-detection*/_settings -X PUT -d '{"index":{"refresh_interval":"1s"}}'
+
+  INSTALLEDVERSION=2.4.90
+}
+up_to_2.4.100() {
+  # Elastic Update for this release, so download Elastic Agent files
+  determine_elastic_agent_upgrade
+  INSTALLEDVERSION=2.4.100
+}
+up_to_2.4.110() {
+  echo "Nothing to do for 2.4.110"
+
+  INSTALLEDVERSION=2.4.110
 }
 
 add_detection_test_pillars() {
@@ -624,7 +733,7 @@ Documentation: https://docs.securityonion.net/en/2.4/telemetry.html
 ASSIST_EOF
 
     echo -n "Continue the upgrade with SOC Telemetry enabled [Y/n]? "
-  
+
     read -r input
     input=$(echo "${input,,}" | xargs echo -n)
     echo ""
@@ -665,7 +774,7 @@ suricata_idstools_migration() {
   rsync -av /opt/so/rules/nids/suri/local.rules /nsm/backup/detections-migration/suricata/local-rules
   if [[ -f /opt/so/saltstack/local/salt/idstools/rules/local.rules ]]; then
       rsync -av /opt/so/saltstack/local/salt/idstools/rules/local.rules /nsm/backup/detections-migration/suricata/local-rules/local.rules.bak
-  fi 
+  fi
 
   #Tell SOC to migrate
   mkdir -p /opt/so/conf/soc/migrations
@@ -682,7 +791,7 @@ playbook_migration() {
   crontab -l | grep -v 'so-playbook-ruleupdate_cron' | crontab -
 
   if grep -A 1 'playbook:'  /opt/so/saltstack/local/pillar/minions/* | grep -q 'enabled: True'; then
-  
+
     # Check for active Elastalert rules
     active_rules_count=$(find /opt/so/rules/elastalert/playbook/ -type f \( -name "*.yaml" -o -name "*.yml" \) | wc -l)
 
@@ -746,11 +855,15 @@ determine_elastic_agent_upgrade() {
   if [[ $is_airgap -eq 0 ]]; then
     update_elastic_agent_airgap
   else
-    update_elastic_agent
+    set +e
+    # the new elasticsearch defaults.yaml file is not yet placed in /opt/so/saltstack/default/salt/elasticsearch yet
+    update_elastic_agent "$UPDATE_DIR"
+    set -e
   fi
 }
 
 update_elastic_agent_airgap() {
+  get_elastic_agent_vars "/tmp/soagupdate/SecurityOnion"
   rsync -av /tmp/soagupdate/fleet/* /nsm/elastic-fleet/artifacts/
   tar -xf "$ELASTIC_AGENT_FILE" -C "$ELASTIC_AGENT_EXPANSION_DIR"
 }
@@ -774,7 +887,7 @@ upgrade_space() {
     fi
   else
       echo "You have enough space for upgrade. Proceeding with soup."
-  fi  
+  fi
 }
 
 unmount_update() {
@@ -787,6 +900,12 @@ update_airgap_rules() {
   rsync -av $UPDATE_DIR/agrules/suricata/* /nsm/rules/suricata/
   rsync -av $UPDATE_DIR/agrules/detect-sigma/* /nsm/rules/detect-sigma/
   rsync -av $UPDATE_DIR/agrules/detect-yara/* /nsm/rules/detect-yara/
+  # Copy the securityonion-resorces repo over for SOC Detection Summaries and checkout the published summaries branch
+  rsync -av --chown=socore:socore $UPDATE_DIR/agrules/securityonion-resources /opt/so/conf/soc/ai_summary_repos
+  git config --global --add safe.directory /opt/so/conf/soc/ai_summary_repos/securityonion-resources
+  git -C /opt/so/conf/soc/ai_summary_repos/securityonion-resources checkout generated-summaries-published
+  # Copy the securityonion-resorces repo over to nsm
+  rsync -av $UPDATE_DIR/agrules/securityonion-resources/* /nsm/securityonion-resources/
 }
 
 update_airgap_repo() {
@@ -832,7 +951,7 @@ upgrade_check() {
     fi
   else
     is_hotfix=false
-  fi 
+  fi
 
 }
 
@@ -844,7 +963,7 @@ upgrade_check_salt() {
     echo "Salt needs to be upgraded to $NEWSALTVERSION."
     UPGRADESALT=1
   fi
-}   
+}
 
 upgrade_salt() {
   SALTUPGRADED=True
@@ -854,7 +973,9 @@ upgrade_salt() {
   if [[ $is_rpm ]]; then
     echo "Removing yum versionlock for Salt."
     echo ""
-    yum versionlock delete "salt-*"
+    yum versionlock delete "salt"
+    yum versionlock delete "salt-minion"
+    yum versionlock delete "salt-master"
     echo "Updating Salt packages."
     echo ""
     set +e
@@ -872,7 +993,9 @@ upgrade_salt() {
     set -e
     echo "Applying yum versionlock for Salt."
     echo ""
-    yum versionlock add "salt-*"
+    yum versionlock add "salt-0:$NEWSALTVERSION-0.*"
+    yum versionlock add "salt-minion-0:$NEWSALTVERSION-0.*"
+    yum versionlock add "salt-master-0:$NEWSALTVERSION-0.*"
   # Else do Ubuntu things
   elif [[ $is_deb ]]; then
     echo "Removing apt hold for Salt."
@@ -962,7 +1085,7 @@ apply_hotfix() {
       mv /etc/pki/managerssl.key /etc/pki/managerssl.key.old
       systemctl_func "start" "salt-minion"
       (wait_for_salt_minion "$MINIONID" "5" '/dev/stdout' || fail "Salt minion was not running or ready.") 2>&1 | tee -a "$SOUP_LOG"
-    fi  
+    fi
   else
    echo "No actions required. ($INSTALLEDVERSION/$HOTFIXVERSION)"
   fi
@@ -991,7 +1114,7 @@ apply_hotfix() {
 
 main() {
   trap 'check_err $?' EXIT
-  
+
   if [ -n "$BRANCH" ]; then
     echo "SOUP will use the $BRANCH branch."
     echo ""
@@ -1175,7 +1298,7 @@ main() {
     echo "Waiting on the Salt Master service to be ready."
     check_salt_master_status || fail  "Can't access salt master or it is not ready. Check $SOUP_LOG for details."
     set -e
-    
+
     echo "Running a highstate to complete the Security Onion upgrade on this manager. This could take several minutes."
     (wait_for_salt_minion "$MINIONID" "5" '/dev/stdout' || fail "Salt minion was not running or ready.") 2>&1 | tee -a "$SOUP_LOG"
     highstate
@@ -1226,9 +1349,9 @@ main() {
     if [[ $NUM_MINIONS -gt 1 ]]; then
 
       cat << EOF
-    
-  
-  
+
+
+
 This appears to be a distributed deployment. Other nodes should update themselves at the next Salt highstate (typically within 15 minutes). Do not manually restart anything until you know that all the search/heavy nodes in your deployment are updated. This is especially important if you are using true clustering for Elasticsearch.
 
 Each minion is on a random 15 minute check-in period and things like network bandwidth can be a factor in how long the actual upgrade takes. If you have a heavy node on a slow link, it is going to take a while to get the containers to it. Depending on what changes happened between the versions, Elasticsearch might not be able to talk to said heavy node until the update is complete.
@@ -1255,6 +1378,15 @@ EOF
 
   fi
 
+# check if the FINAL_MESSAGE_QUEUE is not empty
+if (( ${#FINAL_MESSAGE_QUEUE[@]} != 0 )); then
+  echo "The following additional information applies specifically to your grid:"
+  for m in "${FINAL_MESSAGE_QUEUE[@]}"; do
+    echo "$m"
+    echo
+  done
+fi
+
   echo "### soup has been served at $(date) ###"
 }
 
@@ -1272,13 +1404,13 @@ while getopts ":b:f:y" opt; do
         echo "Cannot run soup in unattended mode. You must run soup manually to accept the Elastic License."
         exit 1
       else
-        UNATTENDED=true 
+        UNATTENDED=true
       fi
     ;;
     f )
       ISOLOC="$OPTARG"
     ;;
-    \? ) 
+    \? )
       echo "Usage: soup [-b] [-y] [-f <iso location>]"
       exit 1
     ;;
@@ -1303,6 +1435,8 @@ SOUP - Security Onion UPdater
 Please review the following for more information about the update process and recent updates:
 $DOC_BASE_URL/soup.html
 https://blog.securityonion.net
+
+WARNING: If you run soup via an SSH session and that SSH session terminates, then any processes running in that session would terminate. You should avoid leaving soup unattended especially if the machine you are SSHing from is configured to sleep after a period of time. You might also consider using something like screen or tmux so that if your SSH session terminates, the processes will continue running on the server.
 
 EOF
 

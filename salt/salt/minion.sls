@@ -2,29 +2,29 @@
 {% from 'salt/map.jinja' import UPGRADECOMMAND with context %}
 {% from 'salt/map.jinja' import SALTVERSION %}
 {% from 'salt/map.jinja' import INSTALLEDSALTVERSION %}
-{% from 'salt/map.jinja' import SALTNOTHELD %}
 {% from 'salt/map.jinja' import SALTPACKAGES %}
 {% from 'salt/map.jinja' import SYSTEMD_UNIT_FILE %}
 {% import_yaml 'salt/minion.defaults.yaml' as SALTMINION %}
 {% set service_start_delay = SALTMINION.salt.minion.service_start_delay %}
 
 include:
+  - salt.python_modules
   - salt
   - systemd.reload
   - repo.client
   - salt.mine_functions
+{% if GLOBALS.role in GLOBALS.manager_roles %}
+  - ca
+{% endif %}
 
 {% if INSTALLEDSALTVERSION|string != SALTVERSION|string %}
 
-{% if SALTNOTHELD | int == 0 %}
 unhold_salt_packages:
-  module.run:
-    - pkg.unhold:
-      - pkgs:
+  pkg.unheld:
+    - pkgs:
 {% for package in SALTPACKAGES %}
-        - {{ package }}
+      - {{ package }}
 {% endfor %}
-{% endif %}
 
 install_salt_minion:
   cmd.run:
@@ -38,15 +38,12 @@ install_salt_minion:
 
 {% if INSTALLEDSALTVERSION|string == SALTVERSION|string %}
 
-{% if SALTNOTHELD | int == 1 %}
 hold_salt_packages:
-  module.run:
-    - pkg.hold:
-      - pkgs:
+  pkg.held:
+    - pkgs:
 {% for package in SALTPACKAGES %}
-        - {{ package }}
+      - {{ package }}: {{SALTVERSION}}-0.*
 {% endfor %}
-{% endif %}
 
 remove_error_log_level_logfile:
   file.line:
@@ -98,5 +95,8 @@ salt_minion_service:
       - file: mine_functions
 {% if INSTALLEDSALTVERSION|string == SALTVERSION|string %}
       - file: set_log_levels
+{% endif %}
+{% if GLOBALS.role in GLOBALS.manager_roles %}
+      - file: /etc/salt/minion.d/signing_policies.conf
 {% endif %}
     - order: last

@@ -27,11 +27,13 @@ so-soc:
       - /opt/so/conf/strelka:/opt/sensoroni/yara:rw
       - /opt/so/conf/sigma:/opt/sensoroni/sigma:rw
       - /opt/so/rules/elastalert/rules:/opt/sensoroni/elastalert:rw
+      - /opt/so/rules/nids/suri:/opt/sensoroni/nids:ro
       - /opt/so/conf/soc/fingerprints:/opt/sensoroni/fingerprints:rw
       - /nsm/soc/jobs:/opt/sensoroni/jobs:rw
       - /nsm/soc/uploads:/nsm/soc/uploads:rw
       - /opt/so/log/soc/:/opt/sensoroni/logs/:rw
       - /opt/so/conf/soc/soc.json:/opt/sensoroni/sensoroni.json:ro
+      - /opt/so/conf/soc/ai_summary_repos:/opt/sensoroni/ai_summary_repos:rw
 {% if SOCMERGED.telemetryEnabled and not GLOBALS.airgap %}
       - /opt/so/conf/soc/analytics.js:/opt/sensoroni/html/js/analytics.js:ro
 {% endif %}

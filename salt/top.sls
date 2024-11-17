@@ -107,6 +107,7 @@ base:
     - utility
     - elasticfleet
     - stig
+    - kafka
 
   '*_standalone and G@saltversion:{{saltversion}}':
     - match: compound
@@ -141,6 +142,7 @@ base:
     - utility
     - elasticfleet
     - stig
+    - kafka
 
   '*_searchnode and G@saltversion:{{saltversion}}':
     - match: compound
@@ -153,6 +155,7 @@ base:
     - nginx
     - elasticfleet.install_agent_grid
     - stig
+    - kafka
 
   '*_managersearch and G@saltversion:{{saltversion}}':
     - match: compound
@@ -182,6 +185,7 @@ base:
     - utility
     - elasticfleet
     - stig
+    - kafka
 
   '*_heavynode and G@saltversion:{{saltversion}}':
     - match: compound
@@ -238,6 +242,8 @@ base:
     - logstash
     - redis
     - elasticfleet.install_agent_grid
+    - kafka
+    - stig
 
   '*_idh and G@saltversion:{{saltversion}}':
     - match: compound
@@ -265,6 +271,7 @@ base:
     - sensoroni
     - telegraf
     - elasticfleet.install_agent_grid
+    - stig
 
   'J@desktop:gui:enabled:^[Tt][Rr][Uu][Ee]$ and ( G@saltversion:{{saltversion}} and G@os:OEL )':
     - match: compound
