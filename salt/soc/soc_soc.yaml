@@ -223,6 +223,10 @@ soc:
               helpLink: sigma.html
             so-eval: *autoEnabledSigmaRules
             so-import: *autoEnabledSigmaRules
+          autoUpdateEnabled:
+            description: 'Automatically update Sigma rules on a regular basis. This will update the rules based on the configured frequency.'
+            global: True
+            advanced: True
           communityRulesImportFrequencySeconds:
             description: 'How often to check for new Sigma rules (in seconds). This applies to both Community Rule Packages and any configured Git repos.'
             global: True
@@ -329,6 +333,10 @@ soc:
           showAiSummaries:
             description: Show AI summaries for Strelka rules.
             global: True
+          autoUpdateEnabled:
+            description: 'Automatically update YARA rules on a regular basis. This will update the rules based on the configured frequency.'
+            global: True
+            advanced: True
           autoEnabledYaraRules:
             description: 'YARA rules to automatically enable on initial import. Format is $Ruleset - for example, for the default shipped ruleset: securityonion-yara'
             global: True
@@ -367,6 +375,10 @@ soc:
           showAiSummaries:
             description: Show AI summaries for Suricata rules.
             global: True
+          autoUpdateEnabled:
+            description: 'Automatically update Suricata rules on a regular basis. This will update the rules based on the configured frequency.'
+            global: True
+            advanced: True
           communityRulesImportFrequencySeconds:
             description: 'How often to check for new Suricata rules (in seconds).'
             global: True
