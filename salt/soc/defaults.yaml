@@ -1327,6 +1327,10 @@ soc:
           showAiSummaries: true
           autoUpdateEnabled: true
           autoEnabledSigmaRules:
+            default: []
+            so-eval: []
+            so-import: []
+          enabledSigmaRules:
             default: |-
               # SOS - resources ruleset
               - ruleset: ["securityonion-resources"]
