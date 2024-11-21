@@ -1327,16 +1327,49 @@ soc:
           showAiSummaries: true
           autoUpdateEnabled: true
           autoEnabledSigmaRules:
-            default:
-              - core+critical
-              - securityonion-resources+critical
-              - securityonion-resources+high
-            so-eval:
-              - securityonion-resources+critical
-              - securityonion-resources+high
-            so-import:
-              - securityonion-resources+critical
-              - securityonion-resources+high
+            default: []
+            so-eval: []
+            so-import: []
+          enabledSigmaRules:
+            default: |-
+              # SOS - resources ruleset
+              - ruleset: ["securityonion-resources"]
+                level: ["critical", "high"]
+                product: ["*"]
+                category: ["*"]
+                service: ["*"]
+              # SigmaHQ - Core ruleset - Logsource: System events supported by Elastic Agent
+              - ruleset: ["core"]
+                level: ["critical"]
+                product: ["*"]
+                category: ["process_creation", "file_event", "registry_event", "network_connection", "dns_query"]
+                service: ["*"]
+              # SigmaHQ - Core ruleset - Logsource: Windows eventlogs
+              - ruleset: ["core"]
+                level: ["critical"]
+                product: ["windows"]
+                category: ["*"]
+                service: ["security", "system", "dns-client", "application"]
+              # SigmaHQ - Core ruleset - Logsource: misc
+              - ruleset: ["core"]
+                level: ["critical"]
+                product: ["*"]
+                category: ["antivirus"]
+                service: ["*"]
+            so-eval: |-
+              # SOS - resources ruleset
+              - ruleset: ["securityonion-resources"]
+                level: ["critical", "high"]
+                product: ["*"]
+                category: ["*"]
+                service: ["*"]
+            so-import: |-
+              # SOS - resources ruleset
+              - ruleset: ["securityonion-resources"]
+                level: ["critical", "high"]
+                product: ["*"]
+                category: ["*"]
+                service: ["*"]
           communityRulesImportFrequencySeconds: 86400
           communityRulesImportErrorSeconds: 300
           failAfterConsecutiveErrorCount: 10

@@ -215,9 +215,20 @@ soc:
               duplicates: True
               forcedType: string
               jinjaEscaped: True
+          enabledSigmaRules:
+            default: &enabledSigmaRules
+              description: 'Sigma rules to automatically enable on initial import. The format is a YAML list, with the ability to filter for ruleset, level, product, category and service. Refer to the documentation for further details. These will be applied based on role if defined and default if not.'
+              global: True
+              helpLink: sigma.html
+              multiline: True
+              syntax: yaml
+              forcedType: string
+              jinjaEscaped: True
+            so-eval: *enabledSigmaRules
+            so-import: *enabledSigmaRules
           autoEnabledSigmaRules:
             default: &autoEnabledSigmaRules
-              description: 'Sigma rules to automatically enable on initial import. Format is $Ruleset+$Level - for example, for the core community ruleset and critical level rules: core+critical. These will be applied based on role if defined and default if not.'
+              description: 'DEPRECATED: Will be removed in a future release - use enabledSigmaRules instead.'
               global: True
               advanced: True
               helpLink: sigma.html
