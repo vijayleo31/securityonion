@@ -223,7 +223,6 @@ soc:
               helpLink: sigma.html
               multiline: True
               syntax: yaml
-              duplicates: True
               forcedType: string
               jinjaEscaped: True
             so-eval: *enabledSigmaRules
