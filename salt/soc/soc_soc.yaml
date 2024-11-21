@@ -219,7 +219,6 @@ soc:
             default: &enabledSigmaRules
               description: 'Sigma rules to automatically enable on initial import. The format is a YAML list, with the ability to filter for ruleset, level, product, category and service. Refer to the documentation for further details. These will be applied based on role if defined and default if not.'
               global: True
-              advanced: True
               helpLink: sigma.html
               multiline: True
               syntax: yaml
