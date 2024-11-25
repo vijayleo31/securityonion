@@ -10465,7 +10465,7 @@ elasticsearch:
           settings:
             index:
               lifecycle:
-                name: so-logs-rapid7_threat_command.alert-logs
+                name: so-logs-ti_rapid7_threat_command.alert-logs
               number_of_replicas: 0
       policy:
         phases:
@@ -10511,7 +10511,7 @@ elasticsearch:
           settings:
             index:
               lifecycle:
-                name: so-logs-rapid7_threat_command.ioc-logs
+                name: so-logs-ti_rapid7_threat_command.ioc-logs
               number_of_replicas: 0
       policy:
         phases:
@@ -10557,7 +10557,7 @@ elasticsearch:
           settings:
             index:
               lifecycle:
-                name: so-logs-rapid7_threat_command.vulnerability-logs
+                name: so-logs-ti_rapid7_threat_command.vulnerability-logs
               number_of_replicas: 0
       policy:
         phases:
