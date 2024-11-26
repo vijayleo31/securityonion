@@ -3230,6 +3230,8 @@ elasticsearch:
         template:
           settings:
             index:
+              lifecycle:
+                name: so-logs-cisco_secure_email_gateway.log-logs
               number_of_replicas: 0
       policy:
         phases:
@@ -10462,6 +10464,8 @@ elasticsearch:
         template:
           settings:
             index:
+              lifecycle:
+                name: so-logs-ti_rapid7_threat_command.alert-logs
               number_of_replicas: 0
       policy:
         phases:
@@ -10506,6 +10510,8 @@ elasticsearch:
         template:
           settings:
             index:
+              lifecycle:
+                name: so-logs-ti_rapid7_threat_command.ioc-logs
               number_of_replicas: 0
       policy:
         phases:
@@ -10550,6 +10556,8 @@ elasticsearch:
         template:
           settings:
             index:
+              lifecycle:
+                name: so-logs-ti_rapid7_threat_command.vulnerability-logs
               number_of_replicas: 0
       policy:
         phases:
