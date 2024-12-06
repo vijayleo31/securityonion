@@ -23,6 +23,7 @@ zeek:
       CfgDir: /opt/zeek/etc
       CompressLogs: 1
       ZeekPort: 27760
+      FileExtractDir: ""
     local:
       load:
         - misc/loaded-scripts
