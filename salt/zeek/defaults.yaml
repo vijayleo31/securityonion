@@ -71,6 +71,8 @@ zeek:
         - zeek-spicy-wireguard
         - zeek-spicy-stun
         - http2
+        - zeek-spicy-ipsec
+        - zeek-spicy-openvpn
       load-sigs:
         - frameworks/signatures/detect-windows-shells
       redef:
