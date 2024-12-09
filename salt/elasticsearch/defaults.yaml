@@ -599,6 +599,35 @@ elasticsearch:
               set_priority:
                 priority: 50
             min_age: 30d
+    so-ip-mappings:
+      index_sorting: false
+      index_template:
+        composed_of:
+        - so-ip-mappings
+        ignore_missing_component_templates: []
+        index_patterns:
+        - so-ip*
+        priority: 500
+        template:
+          mappings:
+            date_detection: false
+            dynamic_templates:
+            - strings_as_keyword:
+                mapping:
+                  ignore_above: 1024
+                  type: keyword
+                match_mapping_type: string
+          settings:
+            index:
+              mapping:
+                total_fields:
+                  limit: 1500
+              number_of_replicas: 0
+              number_of_shards: 1
+              refresh_interval: 30s
+              sort:
+                field: '@timestamp'
+                order: desc
     so-items:
       index_sorting: false
       index_template:
@@ -3470,28 +3499,70 @@ elasticsearch:
               set_priority:
                 priority: 50
             min_age: 30d
-    so-logs-crowdstrike_x_falcon:
-      index_sorting: false
+    so-logs-crowdstrike_x_alert:
+      index_sorting: False
       index_template:
+        index_patterns:
+        - logs-crowdstrike.alert-*
+        template:
+          settings:
+            index:
+              number_of_replicas: 0
+        composed_of:
+        - logs-crowdstrike.alert@package
+        - logs-crowdstrike.alert@custom
+        - so-fleet_globals-1
+        - so-fleet_agent_id_verification-1
+        priority: 501
+        data_stream:
+          hidden: false
+          allow_custom_routing: false
+        ignore_missing_component_templates:
+        - logs-crowdstrike.alert@custom
+      policy:
+        phases:
+          cold:
+            actions:
+              set_priority:
+                priority: 0
+            min_age: 60d
+          delete:
+            actions:
+              delete: {}
+            min_age: 365d
+          hot:
+            actions:
+              rollover:
+                max_age: 30d
+                max_primary_shard_size: 50gb
+              set_priority:
+                priority: 100
+            min_age: 0ms
+          warm:
+            actions:
+              set_priority:
+                priority: 50
+            min_age: 30d
+    so-logs-crowdstrike_x_falcon:
+      index_sorting: False
+      index_template:
+        index_patterns:
+        - logs-crowdstrike.falcon-*
+        template:
+          settings:
+            index:
+              number_of_replicas: 0
         composed_of:
         - logs-crowdstrike.falcon@package
         - logs-crowdstrike.falcon@custom
         - so-fleet_globals-1
         - so-fleet_agent_id_verification-1
+        priority: 501
         data_stream:
-          allow_custom_routing: false
           hidden: false
+          allow_custom_routing: false
         ignore_missing_component_templates:
         - logs-crowdstrike.falcon@custom
-        index_patterns:
-        - logs-crowdstrike.falcon-*
-        priority: 501
-        template:
-          settings:
-            index:
-              lifecycle:
-                name: so-logs-crowdstrike.falcon-logs
-              number_of_replicas: 0
       policy:
         phases:
           cold:
@@ -3517,27 +3588,69 @@ elasticsearch:
                 priority: 50
             min_age: 30d
     so-logs-crowdstrike_x_fdr:
-      index_sorting: false
+      index_sorting: False
       index_template:
+        index_patterns:
+        - logs-crowdstrike.fdr-*
+        template:
+          settings:
+            index:
+              number_of_replicas: 0
         composed_of:
         - logs-crowdstrike.fdr@package
         - logs-crowdstrike.fdr@custom
         - so-fleet_globals-1
         - so-fleet_agent_id_verification-1
+        priority: 501
         data_stream:
-          allow_custom_routing: false
           hidden: false
+          allow_custom_routing: false
         ignore_missing_component_templates:
         - logs-crowdstrike.fdr@custom
+      policy:
+        phases:
+          cold:
+            actions:
+              set_priority:
+                priority: 0
+            min_age: 60d
+          delete:
+            actions:
+              delete: {}
+            min_age: 365d
+          hot:
+            actions:
+              rollover:
+                max_age: 30d
+                max_primary_shard_size: 50gb
+              set_priority:
+                priority: 100
+            min_age: 0ms
+          warm:
+            actions:
+              set_priority:
+                priority: 50
+            min_age: 30d
+    so-logs-crowdstrike_x_host:
+      index_sorting: False
+      index_template:
         index_patterns:
-        - logs-crowdstrike.fdr-*
-        priority: 501
+        - logs-crowdstrike.host-*
         template:
           settings:
             index:
-              lifecycle:
-                name: so-logs-crowdstrike.fdr-logs
               number_of_replicas: 0
+        composed_of:
+        - logs-crowdstrike.host@package
+        - logs-crowdstrike.host@custom
+        - so-fleet_globals-1
+        - so-fleet_agent_id_verification-1
+        priority: 501
+        data_stream:
+          hidden: false
+          allow_custom_routing: false
+        ignore_missing_component_templates:
+        - logs-crowdstrike.host@custom
       policy:
         phases:
           cold:

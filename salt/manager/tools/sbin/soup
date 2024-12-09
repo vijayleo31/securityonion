@@ -719,6 +719,9 @@ up_to_2.4.120() {
   mkdir /opt/so/saltstack/local/pillar/versionlock
   touch /opt/so/saltstack/local/pillar/versionlock/adv_versionlock.sls /opt/so/saltstack/local/pillar/versionlock/soc_versionlock.sls
 
+  # New Grid Integration added this release
+  rm -f /opt/so/state/eaintegrations.txt
+
   INSTALLEDVERSION=2.4.120
 }
 

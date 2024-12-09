@@ -1878,9 +1878,9 @@ repo_sync_local() {
 			fi
 			dnf install -y yum-utils device-mapper-persistent-data lvm2
 			curl -fsSL https://repo.securityonion.net/file/so-repo/prod/2.4/so/so.repo | tee /etc/yum.repos.d/so.repo
-			rpm --import https://repo.saltproject.io/salt/py3/redhat/9/x86_64/SALT-PROJECT-GPG-PUBKEY-2023.pub
+			rpm --import https://packages.broadcom.com/artifactory/api/security/keypair/SaltProjectKey/public
 			dnf config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
-			curl -fsSL "https://repo.saltproject.io/salt/py3/redhat/9/x86_64/minor/$SALTVERSION.repo" | tee /etc/yum.repos.d/salt.repo
+			curl -fsSL "https://github.com/saltstack/salt-install-guide/releases/latest/download/salt.repo" | tee /etc/yum.repos.d/salt.repo
 			dnf repolist
 			curl --retry 5 --retry-delay 60 -A "netinstall/$SOVERSION/$OS/$(uname -r)/1" https://sigs.securityonion.net/checkup --output /tmp/install
 		else
@@ -1913,27 +1913,22 @@ saltify() {
 		logCmd "mkdir -vp /etc/apt/keyrings"
 		logCmd "wget -q --inet4-only -O /etc/apt/keyrings/docker.pub https://download.docker.com/linux/ubuntu/gpg"
 
+		# Download public key
+		logCmd "curl -fsSL -o /etc/apt/keyrings/salt-archive-keyring-2023.pgp https://packages.broadcom.com/artifactory/api/security/keypair/SaltProjectKey/public"
+		# Create apt repo target configuration
+		echo "deb [signed-by=/etc/apt/keyrings/salt-archive-keyring-2023.pgp arch=amd64] https://packages.broadcom.com/artifactory/saltproject-deb/ stable main" | sudo tee /etc/apt/sources.list.d/salt.list
+
 		if [[ $is_ubuntu ]]; then
-
-			# Add Salt Repo
-			logCmd "curl -fsSL -o /etc/apt/keyrings/salt-archive-keyring-2023.gpg https://repo.saltproject.io/salt/py3/ubuntu/$UBVER/amd64/minor/$SALTVERSION/SALT-PROJECT-GPG-PUBKEY-2023.gpg"
-			echo "deb [signed-by=/etc/apt/keyrings/salt-archive-keyring-2023.gpg] https://repo.saltproject.io/salt/py3/ubuntu/$UBVER/amd64/minor/$SALTVERSION/ $OSVER main" | sudo tee /etc/apt/sources.list.d/salt.list
-
 			# Add Docker Repo
 			add-apt-repository -y "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" 
 		
 		else
-			# Add Salt Repo *NOTE* You have to use debian 11 since it isn't out for 12
-			logCmd "curl -fsSL -o /etc/apt/keyrings/salt-archive-keyring-2023.gpg https://repo.saltproject.io/salt/py3/debian/11/amd64/minor/$SALTVERSION/SALT-PROJECT-GPG-PUBKEY-2023.gpg"
-			echo "deb [signed-by=/etc/apt/keyrings/salt-archive-keyring-2023.gpg] https://repo.saltproject.io/salt/py3/debian/11/amd64/minor/$SALTVERSION/ bullseye main" | sudo tee /etc/apt/sources.list.d/salt.list
-
 			# Add Docker Repo
 			curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
 			echo "deb [arch="$(dpkg --print-architecture)" signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian $OSVER stable" > /etc/apt/sources.list.d/docker.list 
-		
 		fi
 
-		logCmd "apt-key add /etc/apt/keyrings/salt-archive-keyring-2023.gpg"
+		logCmd "apt-key add /etc/apt/keyrings/salt-archive-keyring-2023.pgp"
 
 		#logCmd "apt-key add /opt/so/gpg/SALTSTACK-GPG-KEY.pub"
 		logCmd "apt-key add /etc/apt/keyrings/docker.pub"
