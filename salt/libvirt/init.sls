@@ -6,6 +6,7 @@
 {% from 'libvirt/map.jinja' import LIBVIRTMERGED %}
 
 include:
+  - libvirt.64962
   - libvirt.packages
   - libvirt.ssh.users
 
