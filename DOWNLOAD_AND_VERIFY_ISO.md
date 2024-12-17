@@ -1,17 +1,17 @@
-### 2.4.110-20241010 ISO image released on 2024/10/10
+### 2.4.111-20241217 ISO image released on 2024/12/17
 
 
 ### Download and Verify
 
-2.4.110-20241010 ISO image:  
-https://download.securityonion.net/file/securityonion/securityonion-2.4.110-20241010.iso
+2.4.111-20241217 ISO image:  
+https://download.securityonion.net/file/securityonion/securityonion-2.4.111-20241217.iso
  
-MD5: A8003DEBC4510D538F06238D9DBB86C0  
-SHA1: 441DE90A192C8FE8BEBAB9ACE1A3CC18F71A2B1F  
-SHA256: B087A0D12FC2CA3CCD02BD52E52421F4F60DC09BF826337A057E05A04D114CCE  
+MD5: 4EC241C5C7B59BAE58F09063508DEFB7  
+SHA1: 4808FDD64C39B1F8A5E41B0AAA229FB03563BAB1  
+SHA256: EA8C54CF6520809156F99EE4344F764920B1CC88136EEE70E0A666F5960DEC7D  
 
 Signature for ISO image:  
-https://github.com/Security-Onion-Solutions/securityonion/raw/2.4/main/sigs/securityonion-2.4.110-20241010.iso.sig
+https://github.com/Security-Onion-Solutions/securityonion/raw/2.4/main/sigs/securityonion-2.4.111-20241217.iso.sig
 
 Signing key:  
 https://raw.githubusercontent.com/Security-Onion-Solutions/securityonion/2.4/main/KEYS  
@@ -25,17 +25,17 @@ wget https://raw.githubusercontent.com/Security-Onion-Solutions/securityonion/2.
 
 Download the signature file for the ISO:  
 ```
-wget https://github.com/Security-Onion-Solutions/securityonion/raw/2.4/main/sigs/securityonion-2.4.110-20241010.iso.sig
+wget https://github.com/Security-Onion-Solutions/securityonion/raw/2.4/main/sigs/securityonion-2.4.111-20241217.iso.sig
 ```
 
 Download the ISO image:  
 ```
-wget https://download.securityonion.net/file/securityonion/securityonion-2.4.110-20241010.iso
+wget https://download.securityonion.net/file/securityonion/securityonion-2.4.111-20241217.iso
 ```
 
 Verify the downloaded ISO image using the signature file:  
 ```
-gpg --verify securityonion-2.4.110-20241010.iso.sig securityonion-2.4.110-20241010.iso
+gpg --verify securityonion-2.4.111-20241217.iso.sig securityonion-2.4.111-20241217.iso
 ```
 
 The output should show "Good signature" and the Primary key fingerprint should match what's shown below:
