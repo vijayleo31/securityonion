@@ -1,4 +1,4 @@
-### 2.4.111-20241217 ISO image released on 2024/12/17
+### 2.4.111-20241217 ISO image released on 2024/12/18
 
 
 ### Download and Verify
@@ -6,9 +6,9 @@
 2.4.111-20241217 ISO image:  
 https://download.securityonion.net/file/securityonion/securityonion-2.4.111-20241217.iso
  
-MD5: 4EC241C5C7B59BAE58F09063508DEFB7  
-SHA1: 4808FDD64C39B1F8A5E41B0AAA229FB03563BAB1  
-SHA256: EA8C54CF6520809156F99EE4344F764920B1CC88136EEE70E0A666F5960DEC7D  
+MD5: 767823D75EB76A6DC6132F799FD0E720  
+SHA1: 0A7B6918FE5D4BC89EE3F2E03B4F8F4D6255141D  
+SHA256: 394BFCED9B5EAA0788E2D04806231B3A170839394AAF8DD23B4CE0EB9D6EF727  
 
 Signature for ISO image:  
 https://github.com/Security-Onion-Solutions/securityonion/raw/2.4/main/sigs/securityonion-2.4.111-20241217.iso.sig
@@ -40,7 +40,7 @@ gpg --verify securityonion-2.4.111-20241217.iso.sig securityonion-2.4.111-202412
 
 The output should show "Good signature" and the Primary key fingerprint should match what's shown below:
 ```
-gpg: Signature made Thu 10 Oct 2024 07:05:30 AM EDT using RSA key ID FE507013
+gpg: Signature made Tue 17 Dec 2024 04:33:10 PM EST using RSA key ID FE507013
 gpg: Good signature from "Security Onion Solutions, LLC <info@securityonionsolutions.com>"
 gpg: WARNING: This key is not certified with a trusted signature!
 gpg:          There is no indication that the signature belongs to the owner.
