@@ -23,6 +23,7 @@ zeek:
       CfgDir: /opt/zeek/etc
       CompressLogs: 1
       ZeekPort: 27760
+      FileExtractDir: ""
     local:
       load:
         - misc/loaded-scripts
@@ -70,6 +71,8 @@ zeek:
         - zeek-spicy-wireguard
         - zeek-spicy-stun
         - http2
+        - zeek-spicy-ipsec
+        - zeek-spicy-openvpn
       load-sigs:
         - frameworks/signatures/detect-windows-shells
       redef:

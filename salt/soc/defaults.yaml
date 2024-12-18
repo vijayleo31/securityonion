@@ -1327,16 +1327,49 @@ soc:
           showAiSummaries: true
           autoUpdateEnabled: true
           autoEnabledSigmaRules:
-            default:
-              - core+critical
-              - securityonion-resources+critical
-              - securityonion-resources+high
-            so-eval:
-              - securityonion-resources+critical
-              - securityonion-resources+high
-            so-import:
-              - securityonion-resources+critical
-              - securityonion-resources+high
+            default: []
+            so-eval: []
+            so-import: []
+          enabledSigmaRules:
+            default: |-
+              # SOS - resources ruleset
+              - ruleset: ["securityonion-resources"]
+                level: ["critical", "high"]
+                product: ["*"]
+                category: ["*"]
+                service: ["*"]
+              # SigmaHQ - Core ruleset - Logsource: System events supported by Elastic Agent
+              - ruleset: ["core"]
+                level: ["critical"]
+                product: ["*"]
+                category: ["process_creation", "file_event", "registry_event", "network_connection", "dns_query"]
+                service: ["*"]
+              # SigmaHQ - Core ruleset - Logsource: Windows eventlogs
+              - ruleset: ["core"]
+                level: ["critical"]
+                product: ["windows"]
+                category: ["*"]
+                service: ["security", "system", "dns-client", "application"]
+              # SigmaHQ - Core ruleset - Logsource: misc
+              - ruleset: ["core"]
+                level: ["critical"]
+                product: ["*"]
+                category: ["antivirus"]
+                service: ["*"]
+            so-eval: |-
+              # SOS - resources ruleset
+              - ruleset: ["securityonion-resources"]
+                level: ["critical", "high"]
+                product: ["*"]
+                category: ["*"]
+                service: ["*"]
+            so-import: |-
+              # SOS - resources ruleset
+              - ruleset: ["securityonion-resources"]
+                level: ["critical", "high"]
+                product: ["*"]
+                category: ["*"]
+                service: ["*"]
           communityRulesImportFrequencySeconds: 86400
           communityRulesImportErrorSeconds: 300
           failAfterConsecutiveErrorCount: 10
@@ -1896,6 +1929,9 @@ soc:
             - name: Intel
               description: Zeek Intel framework hits
               query: 'tags:intel | groupby intel.indicator | groupby -sankey intel.indicator source.ip | groupby source.ip | groupby -sankey source.ip destination.ip | groupby destination.ip | groupby destination.port | groupby intel.indicator_type | groupby intel.seen_where'
+            - name: IPSec
+              description: IPSec VPN connection metadata
+              query: 'tags:ipsec | groupby source.ip | groupby -sankey source.ip destination.ip | groupby destination.ip | groupby destination.port | groupby destination.geo.country_name | groupby ipsec.version'
             - name: IRC
               description: IRC (Internet Relay Chat) network metadata
               query: 'tags:irc | groupby irc.command.type | groupby -sankey irc.command.type irc.username | groupby irc.username | groupby irc.nickname | groupby irc.command.value | groupby irc.command.info | groupby source.ip | groupby destination.ip | groupby destination.port | groupby destination_geo.organization_name'
@@ -1908,6 +1944,9 @@ soc:
             - name: NTLM
               description: NTLM (New Technology LAN Manager) network metadata
               query: 'tags:ntlm | groupby source.ip | groupby -sankey source.ip destination.ip | groupby destination.ip | groupby destination.port | groupby ntlm.server.dns.name | groupby ntlm.server.nb.name | groupby ntlm.server.tree.name | groupby ntlm.success | groupby source.ip | groupby destination.ip'
+            - name: OpenVPN
+              description: OpenVPN connection metadata
+              query: 'tags:openvpn | groupby source.ip | groupby -sankey source.ip destination.ip | groupby destination.ip | groupby destination.port | groupby destination.geo.country_name'
             - name: PE
               description: PE (Portable Executable) files transferred via network traffic
               query: 'tags:pe | groupby file.machine | groupby -sankey file.machine file.os | groupby file.os | groupby -sankey file.os file.subsystem | groupby file.subsystem | groupby file.section_names | groupby file.is_exe | groupby file.is_64bit'
