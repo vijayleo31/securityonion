@@ -8,6 +8,9 @@
 
 include:
   - salt.minion
+{%   if salt['pillar.get']('hypervisor:nodes', {} ) %}
+  - salt.cloud
+{% endif %}
 
 hold_salt_master_package:
   module.run:
