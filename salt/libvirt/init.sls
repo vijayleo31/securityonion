@@ -84,7 +84,7 @@ disable_default_bridge:
     - require:
       - pkg: install_libvirt-client
     - onlyif:
-      - virsh net-info | grep default
+      - virsh net-list | grep default
 
 # this should only run during the first highstate after setup. it will transfer connection from mgmt to br0
 down_original_mgmt_interface:
